@@ -15,8 +15,7 @@
                  ;; when not using devcards
                  [cljsjs/react "15.3.1-0"]
                  [cljsjs/react-dom "15.3.1-0"]
-                 #_[org.omcljs/om "1.0.0-alpha46"]
-                 #_[reagent "0.6.0"]
+                 [twitter-api "0.7.8"]
                  ]
 
   :plugins [[lein-figwheel "0.5.8"]
