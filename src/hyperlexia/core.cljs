@@ -1,6 +1,6 @@
 (ns hyperlexia.core
   (:require [sablono.core :as sab :include-macros true]
-            [rum.core :as rum])
+            [rum.core :as rum :refer [defc]])
   (:require-macros
    [devcards.core :as dc :refer [defcard deftest]]))
 
@@ -52,31 +52,28 @@
   [:div [:h2 "good morning, " name]])
 
 (defcard welcome-2-card
-  (welcome "tom"))
+  (welcome "bob"))
+
+
+;; Let's do tweets
+;; ===============
+
+(defc tweet [{:keys [user id]}]
+  "A simple view of a tweet that you can click and read using usual browser, and that you can add tags to."
+  [:div.tweet
+   [:span.user user]
+   [:span.tweet-link [:a {:href (str "https://twitter.com/" user "/status/" id)} "follow link"]]
+   [:span.tag-field "first tag, second tag"]])
+
+;; https://twitter.com/ekstasis/status/801004674035970048
+
+(defcard tweet-card
+  (tweet {:id "801004674035970048" :user "ekstasis"}))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+;; Main
+;; ====
 (defn main []
   ;; conditionally start the app based on whether the #main-app-area
   ;; node is on the page
