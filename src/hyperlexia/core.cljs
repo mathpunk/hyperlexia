@@ -60,20 +60,26 @@
      :id (nth matches 2)
      :user (nth matches 1)}))
 
-(defcard destructure-card
+(defcard destructuring-tweets
   (destructure-tweet "https://twitter.com/ekstasis/status/801004674035970048"))
 
-;; (defc tweet [{:keys [user id]}]
-;;   "A simple view of a tweet that you can click and read using usual browser, and that you can add tags to."
-;;   [:div.tweet
-;;    [:span.user user]
-;;    [:span.tweet-link [:a {:href (str "https://twitter.com/" user "/status/" id)} "follow link"]]
-;;    [:span.tag-field "first tag, second tag"]])
+(defcard "Now given a tweet uri, destructure it and format it.")
 
-;; ;; https://twitter.com/ekstasis/status/801004674035970048
+(defc tweet [{:keys [user id]}]
+  "A simple view of a tweet that you can click and read using usual browser, and that you can add tags to."
+  [:div.tweet
+   [:span.user user]
+   [:span.tweet-link [:a {:href (str "https://twitter.com/" user "/status/" id)} "follow link"]]
+   [:span.tag-field "first tag, second tag"]])
 
-;; (defcard tweet-card
-;;   (tweet {:id "801004674035970048" :user "ekstasis"}))
+(defcard tweet
+  (tweet (destructure-tweet "https://twitter.com/ekstasis/status/801004674035970048")))
+
+(defcard "That's appalling for a number of reasons.")
+
+
+;; Contexts
+;; --------
 
 ;; Morning message
 
