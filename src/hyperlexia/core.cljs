@@ -1,6 +1,7 @@
 (ns hyperlexia.core
   (:require [sablono.core :as sab :include-macros true]
             [rum.mdl :as mdl]
+            [cljs.pprint :refer [ pprint ]]
             [rum.core :as rum :refer [defc]])
 
   (:require-macros
@@ -8,79 +9,80 @@
 
 (enable-console-print!)
 
-;; Let's Use Devcards
-;; ==================
-;; Here's an example of a devcard with Sablono:
-
-(defcard first-card
-  (sab/html [:div
-             [:h1 "This is your first devcard!"]]))
-
-;; Can you replicate that with rum?
-
-(defcard rum-card
-  (rum/defc label [text]
-    [:div [:h1 "This is your first devcard in rum"]]))
-
-;; That's a little dumb. You're gonna be doing what,
-;; (defcard name
-;;    (rum/defc name [args]
-;;       body))
-
-;; Then again, will that do name conflict? 
-
-(defcard named-card
-  (rum/defc named-card [text]
-    [:div [:h1 "This might name conflict?"]]))
-
-;; It does not name-conflict. Cool. Fix a devcards template with a different macro?
-
-(comment
-  (defmacro defc
-    "Coupling the defcard macro with the rum defcomponent macro. Is that dumb?"
-    [name args body]
-    `(defcard ~name
-       (rum/defc ~name [~args]))
-    ))
-
-;; Yeah idk from macros. Maybe later. For now, just type the name twice. Don't be a wus.
-
-;; Future User Experience
-;; ======================
-
-;; Well you'll want to say howdy.
-
-(rum/defc welcome [name]
-  [:div [:h2 "good morning, " name]])
-
-(defcard welcome-2-card
-  (welcome "bob"))
-
-
-;; Let's do tweets
+;; Devcard Example
 ;; ===============
+(defc label [text]
+  [:div [:h1 "This example card has the text, \"" text "\""]])
 
-(defc tweet [{:keys [user id]}]
-  "A simple view of a tweet that you can click and read using usual browser, and that you can add tags to."
-  [:div.tweet
-   [:span.user user]
-   [:span.tweet-link [:a {:href (str "https://twitter.com/" user "/status/" id)} "follow link"]]
-   [:span.tag-field "first tag, second tag"]])
+(defcard label-card
+  (label "Hello, Whirled"))
 
-;; https://twitter.com/ekstasis/status/801004674035970048
+;; Components
+;; ==========
 
-(defcard tweet-card
-  (tweet {:id "801004674035970048" :user "ekstasis"}))
+;; MDL
+;; ---
+(defcard
+  "## Material Design Lite
+  I like things to look non-terrible, even though the structure is really what matters here. I don't mind that look being someone else's, because looks can be tweaked later. I'd like to get Material Design working.
 
-(defcard chip
-  (mdl/chip (mdl/chip-text "Basic Chip")))
+  The chips from MDL look like a pretty standard tag. Let's try them.")
 
-(mdl/chip (mdl/chip-text "Basic Chip"))
+;; spec tag is-a set of strings
 
-(defcard asdf (mdl/chip {:mdl [:deletable]} (mdl/chip-text "Deletable Chip")
-                        (mdl/chip-action :button {:type "button"} (mdl/icon "cancel"))))
+(defc tag-chip [name]
+  (mdl/chip (mdl/chip-text name)))
 
-(mdl/button-chip (mdl/chip-text "Button Chip"))
+(defcard tag-chip-card
+  (tag-chip "research topic"))
+
+(defcard
+  "Alas... the component appears in the card, but is none of the material design styling, despite me including it into the index page in ROOT/resources.")
+
+(defc deletable-tag-chip [name]
+  (mdl/chip {:mdl [:deletable]} (mdl/chip-text name)
+            (mdl/chip-action :button {:type "button"} (mdl/icon "cancel"))))
+
+(defcard deletable-tag-chip-card
+  (deletable-tag-chip "ill-tagged"))
+
+(defcard "Frag. Well, just sketch in pure structure for now and sort out the style later. ")
+
+;; Tweets
+;; ------
+(defcard "## Tweets")
+
+(defn destructure-tweet [href]
+  (let [regex #"https://twitter.com/(\w+)/status/([0-9]+).*"
+        matches (first (re-seq regex href))]
+    (println matches)
+    {:type :tweet
+     :id (nth matches 2)
+     :user (nth matches 1)}))
+
+(defcard destructure-card
+  (destructure-tweet "https://twitter.com/ekstasis/status/801004674035970048"))
+
+;; (defc tweet [{:keys [user id]}]
+;;   "A simple view of a tweet that you can click and read using usual browser, and that you can add tags to."
+;;   [:div.tweet
+;;    [:span.user user]
+;;    [:span.tweet-link [:a {:href (str "https://twitter.com/" user "/status/" id)} "follow link"]]
+;;    [:span.tag-field "first tag, second tag"]])
+
+;; ;; https://twitter.com/ekstasis/status/801004674035970048
+
+;; (defcard tweet-card
+;;   (tweet {:id "801004674035970048" :user "ekstasis"}))
+
+;; Morning message
+
+;; Morning structure
+
+;; Evening message
+
+;; Evening structure
+
 
 
 
