@@ -77,6 +77,13 @@
 
 (defcard "That's appalling for a number of reasons.")
 
+;; Collections of tweets
+;; ---------------------
+
+;; You can map this tweet function of a seq of tweet strings. But, how do you get data into the app in the first place? Right now it's just in resources/data, in a text file.
+
+
+
 
 ;; Contexts
 ;; --------
