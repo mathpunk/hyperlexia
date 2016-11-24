@@ -385,6 +385,15 @@ As for using the material design components, there are a few different ways, and
 
 First, I'd like to try cljsjs/material, for the reason that if I can figure out how to use a cljsjs library in a minimal way with no wrapper, that would be great. 
 
+...
+
+Yeah, the problem is that there's like no documentation --- while I can require cljsjs/material with no errors, it's not at all clear to me how you get from the =material= Var to useable component names. 
+
+So now let's try rum-mdl and see if we do any better. 
+
+...
+
+Ugh. Like I'm not getting errors but the rum-mdl components are not styled in any way. 
 
 
 

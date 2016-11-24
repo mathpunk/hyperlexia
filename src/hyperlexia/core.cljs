@@ -1,6 +1,8 @@
 (ns hyperlexia.core
   (:require [sablono.core :as sab :include-macros true]
+            [rum.mdl :as mdl]
             [rum.core :as rum :refer [defc]])
+
   (:require-macros
    [devcards.core :as dc :refer [defcard deftest]]))
 
@@ -69,6 +71,16 @@
 
 (defcard tweet-card
   (tweet {:id "801004674035970048" :user "ekstasis"}))
+
+(defcard chip
+  (mdl/chip (mdl/chip-text "Basic Chip")))
+
+(mdl/chip (mdl/chip-text "Basic Chip"))
+
+(defcard asdf (mdl/chip {:mdl [:deletable]} (mdl/chip-text "Deletable Chip")
+                        (mdl/chip-action :button {:type "button"} (mdl/icon "cancel"))))
+
+(mdl/button-chip (mdl/chip-text "Button Chip"))
 
 
 
