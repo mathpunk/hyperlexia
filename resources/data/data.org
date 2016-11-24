@@ -1,0 +1,27 @@
+
+#+BEGIN_SRC txt :tangle moar-links.txt
+
+https://www.google.com/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=rum%20bootstrap
+https://www.google.com/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=rum%20material%20design
+https://github.com/aJchemist/rum-mdl
+https://twitter.com/
+https://m1k3y.com/2016/11/21/the-lawrence-doctrine-and-the-post-industrial-rescue-mission/
+https://m1k3y.com/2013/05/28/grinderbot-one-of-the-consistent-myths-of-pro/
+https://m1k3y.com/2015/09/10/its-not-a-war-its-a-rescue-mission-re-released-from-the-grinding-be-archives/
+http://weaponizer.blogspot.co.ukonearticle.php/?category=nonfic&articleid=125
+http://thebreakingtime.typepad.com/the_breaking_time/grinder-dialogues/
+https://www.google.com/search?q=Doktor+Sleepless&oq=Doktor+Sleepless&aqs=chrome..69i57&sourceid=chrome&ie=UTF-8
+https://www.patreon.com/posts/showerthoughts-7196947
+http://project.cyberpunk.ru/idb/islandsinthenet.html
+https://en.wikipedia.org/wiki/Turks_%26_Caicos_(film)
+https://twofactorauth.org/
+https://medium.com/@stream_pdx/stream-pdx-vision-7ca67cfe048#.bi7a9ddfy
+https://www.eventbrite.com/e/stream-pdx-fundraiser-party-and-1-day-podcast-challenge-judging-tickets-29485531017
+https://github.com/google/material-design-lite
+https://twitter.com/paprbckparadise
+https://www.facebook.com/pdxbikeswarm/posts/932075946894577
+https://www.linkedin.com/pulse/finally-facebook-phone-book-donald-richard
+https://www.google.com/search?q=list%20of%202016%20swing%20states
+http://www.villagevoice.com/news/the-nypd-arrests-women-for-who-they-are-and-where-they-go-now-theyre-fighting-back-9372920
+
+#+END_SRC

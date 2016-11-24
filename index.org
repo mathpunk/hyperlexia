@@ -2,6 +2,7 @@
 
 
 readme driven development
+
 ** Starting decisions
 *** Language
     ClojureScript / Clojure.
@@ -310,7 +311,6 @@ I need to be able to glance at and classify these links quickly, essentially fli
 
 
 
-
 ** Server-side
    
 It would be nice to be able to, say, get at your favorites automatically, or get the full text of a tweet rather than the messy unescaped monstrosity that gets saved into the 'description/extended' fields in pinboard. You also want to be able to do some kind of social sorting around these things. 
@@ -328,11 +328,65 @@ http://nerd.kelseyinnis.com/blog/2014/05/06/talking-to-yourself-a-twitter-bot-in
 
 
 
-
 ** haha you have no server
 Oh yeah. I'll have to tell figwheel about the =:ring-handler=.
 https://github.com/bhauman/lein-figwheel/wiki/Configuration-Options
 I'm going to proceed under the assumption that I don't even know HOW to make something too complicated for this option. 
+
+** <2016-11-23 Wed> After some designing on paper
+I have taken photos of the designs. They would be agood additions to your page. They might need to be cleaned with CamScan and with inkscape or whatever. 
+
+But that said. 
+
+> Rum is simple, about 900 lines. But it won't teach you to make apps.
+
+I can tell that there are new architectures that are going to get built. I don't have the expertise to evaluate which are going to succeed in what circumstances. So I've split up my concerns into roughly isolated areas:
+
+- the front end, (or the _display_ might be a better term);
+- the user environment (the abstract 'where' that someone does their work);
+- actions;
+- storage, 
+
+and then I thought about the complete graph on four vertices, identifying the vertices and these concerns. 
+
+*Front End, Storage.* If the front end is to render anything it must be able to fetch it. That might be from localStorage or indexedDb, it might be from a DataScript database, it might be a REST call. 
+
+First impression: =localStorage= is just a property in =Window= that you are free to assign to. Its limitation is that you can only have 5MB. But we are a text app, so we can probably just use that. (Note: I looked up that 5MB in characters is about 1400 pages.) IndexedDB sounds like the cool new more complex thing that is more power than we need and requires setting up a connection. DataScript/Rum apps look cool. REST is perhaps too old and too RPC-like for this -- might want to send all the data inside the server-rendered page set to Window.localStorage, and save the server calling for events. (CQRS!)
+
+*Front End, Actions.* The types of user input (things that add data, things that reduce, expand, or change the viewed selection) must be defined and named. Front end uses actions to emit commands to the CQRSystem. 
+
+*Actions, Store.* The store must accept commands as well as queries. The actions don't care how they are stored. 
+
+*Front End, User Environment.* A chronic frustration is the difference between the very full-featured and hella optimized environment you can design on your local Arch machine --- your text editor, your backup strategies, presence or absence of notifications, that kind of thing --- and the pretty (and standards-compliant) pages you can make in a browser but cannot interact with as optimally. (I like my keyboard shortcuts ok.) 
+
+The tack I'm going to take is, use the web app for Reading and Marking, and using the local environment for Composing. This means I'm going to want a way to, having developed a board that I like and want to compose from, ship it / a url to it / both to a file that I can interact with locally. I think this means I just mint urls for boards, and provide a share link so that I can copy it into my text editor? 
+
+*User Environment, Store.* I saw a demo by RTFeldman of something he called Dreamwriter. It was an offline-first app. It permitted file downloading --- that makes me think of, something that you wake up and check out in the morning, and when you've done some marking and reading, you can generaate a composition URL to refer to but you can also download a formatted text file for editing into whatever piece you've decided to work on. I don't really know. 
+
+*User Environment, Actions.* Something like a 'begin composition' action, which kicks you from the open-mode browsing around of things to read and things to associate into a mode where you know what board you're working on and you've got something to get started. 
+
+++
+
+That notion of the architecture makes a degree of sense, but my entry point given what I am most interested in learning is the front end, and a data-first-or-early approach. 
+
+NEXT TIME: 
+- include material design
+- Make a tweet card out of that material
+- Figure out how you're going to get at your November 21st data
+
+UX REVIEW:
+Link to twitter should open in new tab and follow it. 
+
+
+** Include Material Design
+There are some stuffs to add to the index.html -- stylesheets, css, js (I think). I'm not super clear on how externs work but this is assets that material design will need. 
+
+As for using the material design components, there are a few different ways, and I'm choosing between rum-mdl and cljsjs/material.
+
+First, I'd like to try cljsjs/material, for the reason that if I can figure out how to use a cljsjs library in a minimal way with no wrapper, that would be great. 
+
+
+
 
 * More links as input for the system and/or jobs
 
