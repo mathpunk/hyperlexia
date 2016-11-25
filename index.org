@@ -395,7 +395,19 @@ So now let's try rum-mdl and see if we do any better.
 
 Ugh. Like I'm not getting errors but the rum-mdl components are not styled in any way. 
 
+** localStorage
+just a note that this worked
 
+#+BEGIN_SRC clojure
+
+  (.setItem js/localStorage
+            "likes" "data/likes_late_november.txt")
+
+  (println (.getItem js/localStorage "likes"))
+
+#+END_SRC
+
+except that i didn't want to store a string, i wanted what was in the path that string represented, and then i solved my problem another way.
 
 
 * More links as input for the system and/or jobs
