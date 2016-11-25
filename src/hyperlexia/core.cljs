@@ -3,6 +3,7 @@
             [rum.mdl :as mdl]
             [cljs.pprint :refer [ pprint ]]
             [cljs.spec :as s]
+            [hyperlexia.data :refer [likes]]
             [rum.core :as rum :refer [defc]])
 
   (:require-macros
@@ -96,19 +97,40 @@ I've been chucking data into a pinboard.in account for ages. Nearly all of what 
                        :href "https://twitter.com/MadeUpMan/status/1234123412341234"
                        })))
 
-(defcard "Now write new CSS styling rules to separate the information instead of typography. J/k! I'd rather use Material or React-Bootstrap components and I don't know how to interoperate with those. Let's stick with data.")
+(defcard "Now write new CSS styling rules to separate the information instead of typography. J/k! I'd rather use Material or React-Bootstrap components and I don't know how to interoperate with those. Let's stick with data.
 
+## Viewing Collections
+Let's assume we don't want to view everything; we'll take like 10 tweets, skipping non-tweets, and examine them.")
 
+(defc tweets [v]
+  [:ul (map #([:li (tweet %)]) (take 10 v))])
 
+;; What's a dumb way to stick some data into the page? Maybe shove it into localStorage?
 
+;; First, how even does localStorage work.
 
+;; (.setItem js/localStorage
+;;           "likes" "data/likes_late_november.txt")
 
+;; (println (.getItem js/localStorage "likes"))
 
-;; Collections of tweets
-;; ---------------------
+;; That does what I'd think. Only, I don't want the string "data/likes_late_november.txt", I want the resource there. Hm.
 
-;; You can map this tweet function of a seq of tweet strings. But, how do you get data into the app in the first place? Right now it's just in resources/data, in a text file.
+;; Well, the quickest and dumbest way I can think of is to include it in a file and either write functions or abuse the clojure reader. Hence, I wrote a data.cljs with the data in it, and we require it after transforming it into stuff like we'd expect to see kind of.
 
+(defcard "What's our data look like?")
+
+(defcard some-like
+  (str (first likes) ))
+
+(defcard destr-like
+  (str (type-pin (first likes))))
+
+(defcard destr-likes
+  (str (map type-pin (take 10 likes))))
+
+;; (defcard map-tweets
+;;   (tweets (map type-pin likes)))
 
 
 
