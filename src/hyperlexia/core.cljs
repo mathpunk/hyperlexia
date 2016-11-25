@@ -62,28 +62,23 @@ I've been chucking data into a pinboard.in account for ages. Nearly all of what 
 
 (defcard "More than 9 out of 10 links in there is just some damn tweet.")
 
-(defn tweet? [pin] false)
-
-;; Now a question arises: am I making a spec?
-;; Do specs replace making booleans?
-
-;; Your data is not complicated. But you could still benefit from generating data, and from learning how spec works, and about applying conforming.
-
 (s/def ::tweet #(re-matches #"https?://twitter.com/\w+/status/\d+" %))
 
+(defn tweet? [pin]
+  (let [href (:href pin)]
+    (s/valid? ::tweet href)))
 
-(defn destructure-tweet [href]
-  (let [regex #"https://twitter.com/(\w+)/status/([0-9]+).*"
-        matches (first (re-seq regex href))]
-    (println matches)
-    {:type :tweet
-     :id (nth matches 2)
-     :user (nth matches 1)}))
+(defn type-pin [pin]
+  (if (tweet? pin)
+    (assoc pin :type :tweet)
+    (assoc pin :type :link)))
 
-(defcard destructuring-tweets
-  (destructure-tweet "https://twitter.com/ekstasis/status/801004674035970048"))
+(defmulti destructure (fn [p] (:type p)))
 
-(defcard "Now given a tweet uri, destructure it and format it.")
+(defmethod destructure :tweet [pin]
+  (let [regex #"https://twitter.com/(\w+)/status/(\d+).*"
+        matches (first (re-seq regex (:href pin)))]
+    (assoc pin :id (nth matches 2) :user (nth matches 1))))
 
 (defc tweet [{:keys [user id]}]
   "A simple view of a tweet that you can click and read using usual browser, and that you can add tags to."
@@ -93,7 +88,13 @@ I've been chucking data into a pinboard.in account for ages. Nearly all of what 
    [:span.tag-field "first tag, second tag"]])
 
 (defcard tweet
-  (tweet (destructure-tweet "https://twitter.com/ekstasis/status/801004674035970048")))
+  (tweet (destructure {
+                       :timestamp "2016-11-11"
+                       :user "MadeUpMan"
+                       :id 1234123412341234
+                       :type :tweet
+                       :href "https://twitter.com/MadeUpMan/status/1234123412341234"
+                       })))
 
 (defcard "That's appalling for a number of reasons.")
 
