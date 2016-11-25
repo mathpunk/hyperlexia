@@ -63,40 +63,28 @@ I've been chucking data into a pinboard.in account for ages. Nearly all of what 
 
 (defcard "More than 9 out of 10 links in there is just some damn tweet.")
 
-(s/def ::tweet #(re-matches #"https?://twitter.com/\w+/status/\d+" %))
+;; Unnecessary? (s/def ::tweet-url #(re-matches #"https?://twitter.com/\w+/status/\d+" %))
 
-(defn tweet? [pin]
-  (let [href (:href pin)]
-    (s/valid? ::tweet href)))
+(defn conform [pin]
+  (let [href (:href pin)
+        regex #"https://twitter.com/(\w+)/status/(\d+).*"]
+    (if-let [matches (first (re-seq regex href))]
+      (assoc pin :type :tweet :id (nth matches 2) :user (nth matches 1))
+      (assoc pin :type :link))))
 
-(defn type-pin [pin]
-  (if (tweet? pin)
-    (assoc pin :type :tweet)
-    (assoc pin :type :link)))
-
-(defmulti destructure (fn [p] (:type p)))
-
-(defmethod destructure :tweet [pin]
-  (let [regex #"https://twitter.com/(\w+)/status/(\d+).*"
-        matches (first (re-seq regex (:href pin)))]
-    (assoc pin :id (nth matches 2) :user (nth matches 1))))
-
-(defc tweet [pin]
+(defc tweet [{:keys [user id]}]
   "A simple view of a tweet that you can click and read using usual browser, and that you can add tags to."
-  (let [tweet (destructure pin)])
   [:div.tweet
-   [:span.user (:user tweet)] " | "
-   [:span.tweet-link [:a {:href (str "https://twitter.com/" (:user tweet) "/status/" (:id tweet))} "follow link"]] " | " "{ "
+   [:span.user user] " | "
+   [:span.tweet-link [:a {:href (str "https://twitter.com/" user "/status/" id)} "tweet"]] " | " "{ "
    [:span.tag-field "first tag, second tag"] " }"])
 
 (defcard tweet
-  (tweet (destructure {
-                       :timestamp "2016-11-11"
-                       :user "MadeUpHuman"
-                       :id 1234123412341234
-                       :type :tweet
-                       :href "https://twitter.com/MadeUpMan/status/1234123412341234"
-                       })))
+  (tweet { :timestamp "2016-11-11"
+           :user "MadeUpHuman"
+           :id 1234123412341234
+           :type :tweet
+           :href "https://twitter.com/MadeUpMan/status/1234123412341234" }))
 
 (defcard "Now write new CSS styling rules to separate the information instead of typography. J/k! I'd rather use Material or React-Bootstrap components and I don't know how to interoperate with those. Let's stick with data.
 
@@ -125,27 +113,16 @@ Let's assume we don't want to view everything; we'll take like 10 tweets, skippi
   (str (first likes) ))
 
 (defcard destr-like
-  (str (type-pin (first likes))))
+  (str (conform (first likes))))
 
 (defcard destr-likes
-  (str (map type-pin (take 10 likes))))
+  (str (map conform (take 10 likes))))
 
-;; Hm, fakey types get me again. I'm not sure if I'm transforming my data at the right point.
-
-(def some-likes (map type-pin (take 10 likes)))
+(def some-likes (map conform (take 10 likes)))
 
 (defcard a-tweet
   (do
-    (println (first some-likes))
     (tweet (first some-likes))))
-
-;; So there's a bug: how am I showing an href with empty stuff like this? Since the println shows the data looking pretty sweet, =tweet= is the only place the bug can be.
-
-;; I'm like, destructuring wrong. And my functions are wrong. Refactor to correct I do believe. 
-
-
-;; (defcard map-tweets
-;;   (tweets (map type-pin likes)))
 
 
 
