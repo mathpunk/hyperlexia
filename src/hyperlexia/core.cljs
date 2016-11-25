@@ -38,7 +38,7 @@
   (tag-chip "research topic"))
 
 (defcard
-  "Alas... the text shows, but there is none of the material design styling. I included it in $project_root/resources, in the index file. I'm not sure what's going on.")
+  "Alas... the text shows, but there is none of the material design styling. I included it in $project_root/resources, in the index file. Why doesn't it show here?")
 
 (defc deletable-tag-chip [name]
   (mdl/chip {:mdl [:deletable]} (mdl/chip-text name)
@@ -47,7 +47,7 @@
 (defcard deletable-tag-chip-card
   (deletable-tag-chip "ill-tagged"))
 
-(defcard "Let's sketch in the structure, anyway.")
+(defcard "Note that the button is being made, but there's no style to it. Moving on...")
 
 
 ;; Tweets
@@ -83,20 +83,26 @@ I've been chucking data into a pinboard.in account for ages. Nearly all of what 
 (defc tweet [{:keys [user id]}]
   "A simple view of a tweet that you can click and read using usual browser, and that you can add tags to."
   [:div.tweet
-   [:span.user user]
-   [:span.tweet-link [:a {:href (str "https://twitter.com/" user "/status/" id)} "follow link"]]
-   [:span.tag-field "first tag, second tag"]])
+   [:span.user user] " | "
+   [:span.tweet-link [:a {:href (str "https://twitter.com/" user "/status/" id)} "follow link"]] " | " "{ "
+   [:span.tag-field "first tag, second tag"] " }"])
 
 (defcard tweet
   (tweet (destructure {
                        :timestamp "2016-11-11"
-                       :user "MadeUpMan"
+                       :user "MadeUpHuman"
                        :id 1234123412341234
                        :type :tweet
                        :href "https://twitter.com/MadeUpMan/status/1234123412341234"
                        })))
 
-(defcard "That's appalling for a number of reasons.")
+(defcard "Now write new CSS styling rules to separate the information instead of typography. J/k! I'd rather use Material or React-Bootstrap components and I don't know how to interoperate with those. Let's stick with data.")
+
+
+
+
+
+
 
 ;; Collections of tweets
 ;; ---------------------
