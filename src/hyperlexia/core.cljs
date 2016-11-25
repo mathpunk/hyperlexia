@@ -2,6 +2,7 @@
   (:require [sablono.core :as sab :include-macros true]
             [rum.mdl :as mdl]
             [cljs.pprint :refer [ pprint ]]
+            [cljs.spec :as s]
             [rum.core :as rum :refer [defc]])
 
   (:require-macros
@@ -37,7 +38,7 @@
   (tag-chip "research topic"))
 
 (defcard
-  "Alas... the component appears in the card, but is none of the material design styling, despite me including it into the index page in ROOT/resources.")
+  "Alas... the text shows, but there is none of the material design styling. I included it in $project_root/resources, in the index file. I'm not sure what's going on.")
 
 (defc deletable-tag-chip [name]
   (mdl/chip {:mdl [:deletable]} (mdl/chip-text name)
@@ -46,11 +47,30 @@
 (defcard deletable-tag-chip-card
   (deletable-tag-chip "ill-tagged"))
 
-(defcard "Frag. Well, just sketch in pure structure for now and sort out the style later. ")
+(defcard "Let's sketch in the structure, anyway.")
+
 
 ;; Tweets
 ;; ------
-(defcard "## Tweets")
+(defcard "# The Data \n## Tweets & Pins
+
+I've been chucking data into a pinboard.in account for ages. Nearly all of what is in there is tweets, and I haven't really taken notes in it. So the important fields of an object of type pinboard are the timestamp, the tags, the href.")
+
+;; given an object from pinboard,
+;; dissoc all but tags, timestamp
+;; assoc :type :pin
+
+(defcard "More than 9 out of 10 links in there is just some damn tweet.")
+
+(defn tweet? [pin] false)
+
+;; Now a question arises: am I making a spec?
+;; Do specs replace making booleans?
+
+;; Your data is not complicated. But you could still benefit from generating data, and from learning how spec works, and about applying conforming.
+
+(s/def ::tweet #(re-matches #"https?://twitter.com/\w+/status/\d+" %))
+
 
 (defn destructure-tweet [href]
   (let [regex #"https://twitter.com/(\w+)/status/([0-9]+).*"
