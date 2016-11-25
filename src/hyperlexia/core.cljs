@@ -81,11 +81,12 @@ I've been chucking data into a pinboard.in account for ages. Nearly all of what 
         matches (first (re-seq regex (:href pin)))]
     (assoc pin :id (nth matches 2) :user (nth matches 1))))
 
-(defc tweet [{:keys [user id]}]
+(defc tweet [pin]
   "A simple view of a tweet that you can click and read using usual browser, and that you can add tags to."
+  (let [tweet (destructure pin)])
   [:div.tweet
-   [:span.user user] " | "
-   [:span.tweet-link [:a {:href (str "https://twitter.com/" user "/status/" id)} "follow link"]] " | " "{ "
+   [:span.user (:user tweet)] " | "
+   [:span.tweet-link [:a {:href (str "https://twitter.com/" (:user tweet) "/status/" (:id tweet))} "follow link"]] " | " "{ "
    [:span.tag-field "first tag, second tag"] " }"])
 
 (defcard tweet
@@ -128,6 +129,20 @@ Let's assume we don't want to view everything; we'll take like 10 tweets, skippi
 
 (defcard destr-likes
   (str (map type-pin (take 10 likes))))
+
+;; Hm, fakey types get me again. I'm not sure if I'm transforming my data at the right point.
+
+(def some-likes (map type-pin (take 10 likes)))
+
+(defcard a-tweet
+  (do
+    (println (first some-likes))
+    (tweet (first some-likes))))
+
+;; So there's a bug: how am I showing an href with empty stuff like this? Since the println shows the data looking pretty sweet, =tweet= is the only place the bug can be.
+
+;; I'm like, destructuring wrong. And my functions are wrong. Refactor to correct I do believe. 
+
 
 ;; (defcard map-tweets
 ;;   (tweets (map type-pin likes)))
