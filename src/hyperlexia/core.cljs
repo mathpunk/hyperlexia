@@ -11,14 +11,6 @@
 
 (enable-console-print!)
 
-;; Devcard Example
-;; ===============
-(defc label [text]
-  [:div [:h1 "This example card has the text, \"" text "\""]])
-
-(defcard label-card
-  (label "Hello, Whirled"))
-
 ;; Components
 ;; ==========
 
@@ -26,6 +18,7 @@
 ;; ---
 (defcard
   "## Material Design Lite
+
   I like things to look non-terrible, even though the structure is really what matters here. I don't mind that look being someone else's, because looks can be tweaked later. I'd like to get Material Design working.
 
   The chips from MDL look like a pretty standard tag. Let's try them.")
@@ -86,38 +79,12 @@ I've been chucking data into a pinboard.in account for ages. Nearly all of what 
            :type :tweet
            :href "https://twitter.com/MadeUpMan/status/1234123412341234" }))
 
-(defcard "Now write new CSS styling rules to separate the information instead of typography. J/k! I'd rather use Material or React-Bootstrap components and I don't know how to interoperate with those. Let's stick with data.
 
-## Viewing Collections
-Let's assume we don't want to view everything; we'll take like 10 tweets, skipping non-tweets, and examine them.")
 
-(defcard "What's our data look like?")
 
-(defcard some-like
-  (str (first likes) ))
 
-(defcard destr-like
-  (str (conform (first likes))))
 
-(defcard destr-likes
-  (str (map conform (take 10 likes))))
 
-;; Hm, fakey types get me again. I'm not sure if I'm transforming my data at the right point.
-
-(def some-likes (map conform (take 10 likes)))
-
-(defcard tweets
-  (map (comp tweet conform) likes))
-
-;; That's no good. The below is also no good.
-
-;; (defcard tweets
-;;   (let [data (map conform likes)]
-;;     (tweets data)))
-
-;; Well, see you tomorrow.
-
-(defcard "Yeah idk. See you tomorrow.")
 
 
 ;; Contexts
