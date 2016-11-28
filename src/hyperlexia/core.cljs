@@ -1,11 +1,10 @@
 (ns hyperlexia.core
   (:require [sablono.core :as sab :include-macros true]
             [rum.mdl :as mdl]
-            [cljs.pprint :refer [ pprint ]]
+            [cljs.pprint :refer [pprint]]
             [cljs.spec :as s]
             [hyperlexia.data :refer [likes]]
             [rum.core :as rum :refer [defc]])
-
   (:require-macros
    [devcards.core :as dc :refer [defcard deftest]]))
 
@@ -56,8 +55,6 @@ I've been chucking data into a pinboard.in account for ages. Nearly all of what 
 
 (defcard "More than 9 out of 10 links in there is just some damn tweet.")
 
-;; Unnecessary? (s/def ::tweet-url #(re-matches #"https?://twitter.com/\w+/status/\d+" %))
-
 (defn conform [pin]
   (let [href (:href pin)
         regex #"https://twitter.com/(\w+)/status/(\d+).*"]
@@ -65,25 +62,24 @@ I've been chucking data into a pinboard.in account for ages. Nearly all of what 
       (assoc pin :type :tweet :id (nth matches 2) :user (nth matches 1))
       (assoc pin :type :link))))
 
-(defc tweet [{:keys [user id]}]
-  "A simple view of a tweet that you can click and read using usual browser, and that you can add tags to."
-  [:div.tweet
-   [:span.user user] " | "
-   [:span.tweet-link [:a {:href (str "https://twitter.com/" user "/status/" id)} "tweet"]] " | " "{ "
-   [:span.tag-field "first tag, second tag"] " }"])
+;; I'm thinking that really I want to be using single and aggregate types of material design components, rather than raw ul's and stuff. But why isn't my Material getting required correctly?
 
-(defcard tweet
-  (tweet { :timestamp "2016-11-11"
-           :user "MadeUpHuman"
-           :id 1234123412341234
-           :type :tweet
-           :href "https://twitter.com/MadeUpMan/status/1234123412341234" }))
+;; Let's redefine tweets to be more like text to recognize that your html is no good right now. 
 
+(defc tweet [pin]
+  [:li (:user pin ) " | " [:a {:href (:href pin)} "tweet"] " | " " { first tag, second }" ]
+  )
 
-
+(defcard tweeeeeeeeeeeeeeeet
+  [:ul (tweet { :timestamp "2016-11-11"
+          :user "MadeUpHuman"
+          :id 1234123412341234
+          :type :tweet
+          :href "https://twitter.com/MadeUpMan/status/1234123412341234" }) ])
 
 
-
+(defcard tweeeeeeeeeeeeeet
+  (defc hi [wat] [:ul  [:li "hey"]] ))
 
 
 

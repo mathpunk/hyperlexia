@@ -1,6 +1,5 @@
 #+TITLE: Hyperlexia
 
-
 readme driven development
 
 ** Starting decisions
@@ -262,6 +261,60 @@ My goal is to be able to open these, glance over them, and classify them by way 
 Once classified, the next goal is to use the keywords, and structures derived from keywords and sets of keywords, to pile your links into little piles of meaning. Those piles, you would also like to be able to reorder them (piles as linear) and to spread them out into patterns (piles as collections which can be spread into a board). 
 
 It's a bit like defragging: the churn of twitter turned into collections that may be thought of in aggregate, in such a way as to become constellatory for pitches & writings. 
+
+** specs
+
+item
+::item "Something that may be identified."
+::pin
+::tweet keys 
+::tagged keys tags and tags set or string but neither empty
+::file keys path hash
+
+keyword
+::up-set
+::down-set
+::singleton
+::concept
+::concept-lattice
+
+routes
+::?
+
+
+item
+::item "Something that may be identified."
+::pin
+::tweet keys 
+::tagged keys tags and tags set or string but neither empty
+::file keys path hash
+
+keyword
+::up-set
+::down-set
+::singleton
+::concept
+::concept-lattice
+
+routes
+::?
+
+By example:
+
+#+BEGIN_SRC clojure
+
+(def email-regex #"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$")
+(s/def ::email-type (s/and string? #(re-matches email-regex %)))
+
+(s/def ::acctid int?)
+(s/def ::first-name string?)
+(s/def ::last-name string?)
+(s/def ::email ::email-type)
+
+(s/def ::person (s/keys :req [::first-name ::last-name ::email]
+                        :opt [::phone]))
+#+END_SRC
+
 
 ** UI Components
 
@@ -602,7 +655,6 @@ Parameters are uniform across the functions. All calls can accept:
 
 *** Working with MongoDB
 (Note: Rethink is nice but Mongo is very common so what the heck. Also it's weird to use Changefeeds in an immutable language so, I'll stick with something a little more basic.)
-
 
 ** Intriguing Prior Art
 http://blog.yhat.com/posts/words2map.html
