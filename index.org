@@ -22,19 +22,11 @@ readme driven development
 *** Development
     Navigate to directory. =lein figwheel=. Now you're in the devcards build. I'll develop in this until I am getting happy with the results, and then I'll look into how to make a new figwheel build for production.
 
-** Data Source 1
+** Data Sources
 
-<2016-11-22 Tue>
+*** 1. A list of tweets from one day in November 
 
-What I want to do is download a list of likes. I'm not sure if I can do that? Wait did I install =t= on this computer? 
-
-Shit. Well, I don't *want* to start by wrangling OAuth. 
-
-Let's do some dumb manual shit. Open
-
-https://twitter.com/mathpunk/likes
-
-which requires you to be logged in. Take maybe ten minutes to open everything and copy it in right freakin' here. 
+Here's a bonehead data source to start with: I just opened my 'likes' page and copied all the tweets I'd liked (the intent being, mostly to save but occasionally to signal) into this list here:
 
 #+BEGIN_SRC txt :tangle resources/data/likes_late_november.txt
 
@@ -253,13 +245,136 @@ What can I say about this data?
 
 Its transformation should yield a set --- duplicates don't mean anything. 
 
-What do the 'likes' represent? Well this was a pretty serious Nazi week after the election, so the vast majority represent me saving reports, analyses, and recommended actions to tkae in the face of less than 70 days to inauguration. Of those, some of them are threads that represent a conversation's worth of information that I would like to pass on and/or respond to; others are all the way to suggestions for action on getting faithless electors to do their job and not elect someone who is flaunting norms and laws left and right, someone for whom there may be some credible evidence that there was hacks and fraud and idk what else; there are templates and lists for how and who to call to resist, to #NonServiam; some are mere inspiration. Of the rest, there are "I see you" faves that need nothing further but could be recorded as an instance of human feelings between humans, you monster; there are pictures and comics and such that are of brief 'heh' or are of use in the ol' emergency GIFs folder; there are books to order and read, there are connections between the national scene and the environmental racism at the Flint or Standing Rock level...
+This was a pretty serious Nazi week after the election, so the vast majority represent me saving reports, analyses, and recommended actions to take in the face of less than 70 days to inauguration. Of those, some of them are threads that represent a conversation's worth of information that I would like to pass on and/or respond to; others are all the way to suggestions for action on getting faithless electors to do their job and not elect someone who is flaunting norms and laws left and right, someone for whom there may be some credible evidence that there was hacks and fraud and idk what else; there are templates and lists for how and who to call to resist, to #NonServiam; some are mere inspiration. Of the rest, there are "I see you" faves that need nothing further but could be recorded as an instance of human feelings between humans, you monster; there are pictures and comics and such that are of brief 'heh' or are of use in the ol' emergency GIFs folder; there are books to order and read, there are connections between the national scene and the environmental racism at the Flint or Standing Rock level...
 
-I mean really, it's a fucking mess, because things are a fucking mess. But it doesn't help to just stare at the freight train. I'm trying to turn these things into collected data. I'm trying to build a Global Frequency here, or at least one node in that sum of frequencies. 
+So anyway, this is a mess that is hard to look at. And yet it's important that you not look away. So can your writer's prosthesis 1) help you get a grasp on what this kind of outpouring of fear, despair, and hope can mean, and 2) get you moving on writing & action that can help? 
 
-** The Interface
+*** 2. Recent likes
+Can you use the API to get at a list of your recent likes? 
 
-I need to be able to glance at and classify these links quickly, essentially flipping them as little index cards of meaning into piles, so that I can then address each pile in its time. Think of it as a defragging process: putting disparate informations into blocks, so that the blocks may be read more efficiently. Splitting into separate processes, then: assembling blocks for later use, retrieving blocks for a use for now, and maybe it's not so much a process as a display, selecting which block is right for right now. 
+*** 3. All Pins
+There is an http method that will get you all of your links saved to Pinboard. They are not all tweets, but they are mostly tweets. The difference from the above lists are, these are tweets that sometimes have already been labeled with keywords.
+
+** The Intended Workflow
+
+My goal is to be able to open these, glance over them, and classify them by way of a few keywords. 
+
+Once classified, the next goal is to use the keywords, and structures derived from keywords and sets of keywords, to pile your links into little piles of meaning. Those piles, you would also like to be able to reorder them (piles as linear) and to spread them out into patterns (piles as collections which can be spread into a board). 
+
+It's a bit like defragging: the churn of twitter turned into collections that may be thought of in aggregate, in such a way as to become constellatory for pitches & writings. 
+
+** UI Components
+
+   There must be a tweet component, with a text input field attached to enter in keywords. Upon exit from the input field, an update for the tweet's labels should be persisted.
+
+   A selection of tweets. Say, 10, for not getting overwhelmed.
+   It would be nice to be able to collect threads. But threads are a mess on twitter.
+
+   Option to show only unlabeled tweets.
+Option to show tweets labeled with some keyword or subset of keywords. 
+Note: We will consider an item labeled with A, B and C to also be labeled with, say, B and C. A set of keywords given should retrieve the up-sets, though after the exact matches, and perhaps it also shows the downsets. 
+
+*** Specifying ui components
+
+ Here's an example from Juxt, wherein they use spec to define their data entities more precisely. That way they have better tooling around generating example data to see if their UI is getting out of whack. 
+
+ #+BEGIN_SRC clojure
+
+ (require '[sablono.core :as sab :include-macros true])
+ (require '[cljs.spec :as s :include-macros true])
+
+ (s/def :todo/title (s/and string? (complement str/blank?)))
+ (s/def :todo/completed boolean?)
+ (s/def :todos/item (s/keys :req [:todo/title :todo/completed]))
+ (s/def :todos/list (s/coll-of :todos/item))
+ (s/def :todos/showing #{:all :active :completed})
+ (s/def :todos/view (s/keys :req [:todos/list :todos/showing]))
+
+ (defn item [{:keys [todo/title todo/completed todo/editing]}]
+   (let [class (cond-> ""
+                       completed (str "completed ")
+                       editing (str "editing"))]
+     (sab/html
+       [:li {:className class}
+        [:div.view
+         [:input.toggle {:type     "checkbox"
+                         :checked  (and completed "checked")
+                         :onChange #(do %)}]
+         [:label title]
+         [:button.destroy]
+         [:input.edit {:ref "editField"}]]])))
+
+ (defn todos [{:keys [todos/list todos/showing]}]
+   (let [active (count (remove :todo/completed list))
+         completed (- (count list) active)
+         checked? (every? :todo/completed list)]
+     (sab/html
+       [:div#content
+        [:div#todoapp
+         [:header#header
+          [:h1 "Todos"]
+          [:input {:ref         "newField"
+                   :id          "new-todo"
+                   :placeholder "What needs to be done?"
+                   :onKeyDown   #(do %)}]]
+         [:section#main {:style (hidden (empty? list))}
+          [:input#toggle-all {:type     "checkbox"
+                              :onChange #(do %)
+                              :checked  checked?}]
+          (into [:ul#todo-list]
+                (for [todo (filter (case showing
+                                     :completed :todo/completed
+                                     :active (complement :todo/completed)
+                                     :all identity) list)]
+                  (item todo)))]
+         [:footer#footer {:style (hidden (empty? list))}
+          [:span#todo-count
+           [:strong active] (str " " (pluralize active "item") " left")]
+          (into [:ul#filters {:className (name showing)}]
+                (for [[x y] [["" "All"] ["active" "Active"] ["completed" "Completed"]]]
+                  [:li [:a y]]))
+          [:button#clear-completed (str "Clear completed (" completed ")")]]]])))
+
+ #+END_SRC
+
+**** Data, Interface, Action, Render
+  https://juxt.pro/blog/posts/generative-ui-clojure-spec.html
+
+  #+BEGIN_QUOTE
+
+  *Data* and *Interface* are mostly explorative and declarative part of you codebase. You _define_ a data model that suits your business needs. You _explore_ what native calls you need to make in order to show the interface you want.
+
+  *Action* refers to all the code you use to modify the state in response to an external event. As the application grows in complexity, take some time to keep this code clean and you’ll see is going to look mostly functional and easy to test.
+
+  My main source of pain, you’ve probably have guessed, is the *Render* code.
+
+  #+END_QUOTE
+
+  "Define a data model that suits your needs"
+
+  href
+  tags
+
+  destruct-tweet-href
+
+  render-tweet
+  it's got href s.t. it destructures
+  get tweet by id (server call)
+
+  render-tweets
+  it's a seq
+  each item is a tweet
+
+  the tags get associated to the tweet in the db
+  the freetext of the tweet gets into the db
+  by way of the href we get the user too
+  there is other data about a tweet from the api
+
+
+
+
+ 
+
 
 
 *** Tweet component
@@ -308,32 +423,198 @@ I need to be able to glance at and classify these links quickly, essentially fli
 
 
 
+*** Read-Write-Recur
+
+    I want my app to remind me of things that I'm in the process of reading and annotating, as well as encourage me to process my pins by adding keywords & lanes.
+
+#+BEGIN_SRC clojure
+
+  {
+   :favorites [
+               { :title "Ecology of Beauty and Strong Drink"
+                :desc "Hybridization, sexual selection, freaks and weirdos, clearcutting response. Life sciences of information and culture. Infodruidism."
+                :keywords "bio, dru1d, memetics, information, cyborgs"
+                :uri ""},
+
+               { :title "Quantum Techniques for Stochastic Mechanics"
+                :keywords "mathematics, processes, statistics, numerical methods, linear algebra, graphical linear algebra, vector spaces"
+                :uri ""}
+
+               {:title "Manifestly Haraway"
+                :type "print"
+                :desc "Nature vs machines as a border war? Let's queer that. Like in Tory Amos's _The Red Baron_, in which two people get confused about 'sides' and sleep with the so-called enemy."}
+    ]
+
+   :likes [
+           "November 21, 2016"
+           "Recent"
+           "All"
+           ]
+   }
+#+END_SRC
+
+Likes? Those are things that you need to process.
+Favorites? Those are things that you want to read and re-read and generate material from, because they are so good that you want to have written them, that you want them inside your all*.
+*** Style: Material Design
+
+I've had trouble getting Material Design to load. I'm doing something wrong -- I'll limp along without it for a while, see if maybe I'm screwing up the stylesheets in the index.html, and then if I can't get anywhere, ask Rob for a review. 
+
+*** localStorage
+ just a note that this worked
+
+ #+BEGIN_SRC clojure
+
+   (.setItem js/localStorage
+             "likes" "data/likes_late_november.txt")
+
+   (println (.getItem js/localStorage "likes"))
+
+ #+END_SRC
+
+ except that i didn't want to store a string, i wanted what was in the path that string represented, and then i solved my problem another way.
+
+** The Server
+
+- Serve the app itself, with its recur data
+- Search db for pins matching keywords, up-sets of keywords, down-sets of keywords
+- Retrieve tweet by status ID
+  - Cached?
+  - Else, fetch
+- Retrieve bio of twitter user
+  - cached? else, fetch
+- Retrieve total vocabulary of keywords
+- Retrieve pin by id
+- Retrieve recent likes
+  - to the point of having all likes? that'd be cool
+- Get follows, followers of Twitter user
+
+*** Initializing the server
+    Put 
+
+  #+BEGIN_SRC clojure
+
+  :ring-handler hyperlexia.server/handler
+
+  #+END_SRC
+
+  in the obvious place in your project.clj.
+
+Something from juxt called =yada= claims to do http in the most right way. It looks like it might simplify away a lot of config I don't understand for Ring. Worth a shot, though it may straight up not be a ring handler and therefore be too complex for figwheel's basic http. 
+
+#+BEGIN_SRC clojure
+
+      [yada "1.1.44"]
+      [aleph "0.4.1"]
+
+#+END_SRC
 
 
+Okay, can you hello a world? 
 
-** Server-side
-   
-It would be nice to be able to, say, get at your favorites automatically, or get the full text of a tweet rather than the messy unescaped monstrosity that gets saved into the 'description/extended' fields in pinboard. You also want to be able to do some kind of social sorting around these things. 
+  #+BEGIN_SRC clojure :tangle src/hyperlexia/server.clj
+    (ns hyperlexia.server
+      (:require [yada.yada :as yada]))
 
-Alas, OAuth was invented to make the Internet not fun. (The other thing invented to make the Internet not fun is the CORS policy but that one I figured out -- roughly, giving clients read privileges is too dangerous so, you have to ask a server that you own to make the request because it's more onerous or something. 
-
-Luckily there exist examples for authenticating with Twitter. Let's use a blog post as an example and see how far we get. 
-
-http://nerd.kelseyinnis.com/blog/2014/05/06/talking-to-yourself-a-twitter-bot-in-clojure-by-a-total-newb/
-
-[x] declare dependency in project.clj
-
-...hm, then i read the post and it's more a CLI thing, with a main and stuff. Still, keep it open. But, let's look at the twitter-api library, and that OAuth lib example as a secondary if needed.
+    (def handler
+      (yada/handler
+       {:methods
+        {:get
+         {:produces "text/html"
+          :response "<h1>Hello World!</h1>"}}})
 
 
+  #+END_SRC
+
+Necessary server functions:
+- Talking with twitter (no CORS)
+- Reading local documents into models.
+  - results of Pinboard All
+  - journal files
+  - notes files (titled)
+  - scroll files (uuid'd)
+
+You know you might want to consider a uuid to be a 'title' just one that doesn't mean anything in and of itself. After all the file system insists on title uniqueness. 
+
+*** Working with Twitter
+Fuck, OAuth! Don't be scared. Look at an example. 
+
+here's a second example if the below doesn't make sense: http://nerd.kelseyinnis.com/blog/2014/05/06/talking-to-yourself-a-twitter-bot-in-clojure-by-a-total-newb/
+
+[twitter-api "0.7.8"]
+
+#+BEGIN_SRC clojure
+
+(ns mynamespace
+  (:use
+   [twitter.oauth]
+   [twitter.callbacks]
+   [twitter.callbacks.handlers]
+   [twitter.api.restful])
+  (:import
+   (twitter.callbacks.protocols SyncSingleCallback)))
+
+(def my-creds (make-oauth-creds *app-consumer-key*
+                                *app-consumer-secret*
+                                *user-access-token*
+                                *user-access-token-secret*))
+
+; simply retrieves the user, authenticating with the above credentials
+; note that anything in the :params map gets the -'s converted to _'s
+(users-show :oauth-creds my-creds :params {:screen-name "AdamJWynne"})
+
+; supplying a custom header
+(users-show :oauth-creds my-creds :params {:screen-name "AdamJWynne"} :headers {:x-blah-blah "value"})
+
+; shows the users friends
+(friendships-show :oauth-creds my-creds
+                  :params {:target-screen-name "AdamJWynne"})
+
+; use a custom callback function that only returns the body of the response
+(friendships-show :oauth-creds my-creds
+                  :callbacks (SyncSingleCallback. response-return-body
+                                                  response-throw-error
+                                                  exception-rethrow)
+          :params {:target-screen-name "AdamJWynne"})
+
+; post a text status, using the default sync-single callback
+(statuses-update :oauth-creds my-creds
+                 :params {:status "hello world"})
+
+; upload a picture tweet with a text status attached, using the default sync-single callback
+(statuses-update-with-media :oauth-creds *creds*
+                            :body [(file-body-part "/pics/test.jpg")
+                                  (status-body-part "testing")])
+
+#+END_SRC
+
+All of the functions follow Twitter's naming conventions; we convert a resource's path into the function name. For example:
+
+https://api.twitter.com/1.1/account/settings is available as account-settings
+https://api.twitter.com/1.1/statuses/update_with_media is available as statuses-update-with-media
+
+Parameters are uniform across the functions. All calls can accept:
+
+:oauth-creds is the result of the make-oauth-creds function.
+:params is a map of parameters to pass, eg, list_id=123 would be {:list-id 123}
+:headers adds or overrides any of the request headers sent to Twitter.
+:verb overrides the HTTP verb used to make the request, for resources that support it (eg, account-settings)
+:callbacks attaches a custom callback to the request.
+
+*** Working with MongoDB
+(Note: Rethink is nice but Mongo is very common so what the heck. Also it's weird to use Changefeeds in an immutable language so, I'll stick with something a little more basic.)
 
 
-** haha you have no server
-Oh yeah. I'll have to tell figwheel about the =:ring-handler=.
-https://github.com/bhauman/lein-figwheel/wiki/Configuration-Options
-I'm going to proceed under the assumption that I don't even know HOW to make something too complicated for this option. 
+** Intriguing Prior Art
+http://blog.yhat.com/posts/words2map.html
 
+Words2map is kinda what I'm trying to do, I might ust be able to use their shit, but also, it makes sense to apply to this place since they are trying to overlap passions, i.e., they are doing topic modeling and I could help with that or at least have some opinions about it. 
+** Hopes and Fears
+
+*** One node in the global frequency
+
+ Imagine a sum of frequencies and codes....
 ** <2016-11-23 Wed> After some designing on paper
+
 I have taken photos of the designs. They would be agood additions to your page. They might need to be cleaned with CamScan and with inkscape or whatever. 
 
 But that said. 
@@ -376,62 +657,3 @@ NEXT TIME:
 
 UX REVIEW:
 Link to twitter should open in new tab and follow it. 
-
-
-** Include Material Design
-There are some stuffs to add to the index.html -- stylesheets, css, js (I think). I'm not super clear on how externs work but this is assets that material design will need. 
-
-As for using the material design components, there are a few different ways, and I'm choosing between rum-mdl and cljsjs/material.
-
-First, I'd like to try cljsjs/material, for the reason that if I can figure out how to use a cljsjs library in a minimal way with no wrapper, that would be great. 
-
-...
-
-Yeah, the problem is that there's like no documentation --- while I can require cljsjs/material with no errors, it's not at all clear to me how you get from the =material= Var to useable component names. 
-
-So now let's try rum-mdl and see if we do any better. 
-
-...
-
-Ugh. Like I'm not getting errors but the rum-mdl components are not styled in any way. 
-
-** localStorage
-just a note that this worked
-
-#+BEGIN_SRC clojure
-
-  (.setItem js/localStorage
-            "likes" "data/likes_late_november.txt")
-
-  (println (.getItem js/localStorage "likes"))
-
-#+END_SRC
-
-except that i didn't want to store a string, i wanted what was in the path that string represented, and then i solved my problem another way.
-
-
-* More links as input for the system and/or jobs
-
-http://ocrjournal.bigcartel.com/product/ocr-journal-002
-http://www.larousse.fr/encyclopedie/data/images/1314227-Ob%C3%A9ir_cest_trahir_D%C3%A9sob%C3%A9ir_cest_servir.jpg
-https://www.google.com/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=tsne%20word2vec
-https://www.google.com/search?q=word2vec%20tsne%20python%20rest#safe=off&q=word2vec+tsne+rest+api
-https://www.google.com/search?q=word2maps
-http://blog.yhat.com/posts/words2map.html
-https://github.com/overlap-ai/words2map
-http://overlap.ai/
-https://www.yhat.com/jobs
-http://blog.yhat.com/posts/words2map.html
-https://www.yhat.com/
-http://hen-drik.de/pub/Heuer%20-%20word2vec%20-%20From%20theory%20to%20practice.pdf
-http://cilvr.nyu.edu/lib/exe/fetch.php?media=deeplearning:2016:laurens.pdf
-https://www.tensorflow.org/versions/r0.11/tutorials/word2vec/index.html
-https://www.google.com/search?q=word2vec%20flask
-https://www.snip2code.com/Snippet/913943/Flask---gensim-word2vec
-https://github.com/quhfus/DoSeR/wiki/Word2Vec-Rest-Server
-https://github.com/3Top/word2vec-api/blob/master/word2vec-api.py
-https://gist.github.com/joegle/b82d70b0d581dc4609e4
-** Of Especial Note
-http://blog.yhat.com/posts/words2map.html
-
-Words2map is kinda what I'm trying to do, I might ust be able to use their shit, but also, it makes sense to apply to this place since they are trying to overlap passions, i.e., they are doing topic modeling and I could help with that or at least have some opinions about it. 
