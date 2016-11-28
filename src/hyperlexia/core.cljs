@@ -10,50 +10,18 @@
 
 (enable-console-print!)
 
-;; Components
-;; ==========
-
-;; MDL
-;; ---
-(defcard
-  "## Material Design Lite
-
-  I like things to look non-terrible, even though the structure is really what matters here. I don't mind that look being someone else's, because looks can be tweaked later. I'd like to get Material Design working.
-
-  The chips from MDL look like a pretty standard tag. Let's try them.")
-
-;; spec tag is-a set of strings
-
-(defc tag-chip [name]
-  (mdl/chip (mdl/chip-text name)))
-
-(defcard tag-chip-card
-  (tag-chip "research topic"))
-
-(defcard
-  "Alas... the text shows, but there is none of the material design styling. I included it in $project_root/resources, in the index file. Why doesn't it show here?")
-
-(defc deletable-tag-chip [name]
-  (mdl/chip {:mdl [:deletable]} (mdl/chip-text name)
-            (mdl/chip-action :button {:type "button"} (mdl/icon "cancel"))))
-
-(defcard deletable-tag-chip-card
-  (deletable-tag-chip "ill-tagged"))
-
-(defcard "Note that the button is being made, but there's no style to it. Moving on...")
-
+;; Items
+;; -----
+;; Items can be identified.
+;; id tweet -> [status (re-matches...)]
+;; id pin -> :hash %
+;; id file -> sha1 content
 
 ;; Tweets
 ;; ------
-(defcard "# The Data \n## Tweets & Pins
+;; Tweets are items whose :href conforms to ::tweet-url.
 
-I've been chucking data into a pinboard.in account for ages. Nearly all of what is in there is tweets, and I haven't really taken notes in it. So the important fields of an object of type pinboard are the timestamp, the tags, the href.")
-
-;; given an object from pinboard,
-;; dissoc all but tags, timestamp
-;; assoc :type :pin
-
-(defcard "More than 9 out of 10 links in there is just some damn tweet.")
+;; This =conform= idea was a sort of fakey typing but I think you should re-write this to use your specs.
 
 (defn conform [pin]
   (let [href (:href pin)
@@ -61,10 +29,6 @@ I've been chucking data into a pinboard.in account for ages. Nearly all of what 
     (if-let [matches (first (re-seq regex href))]
       (assoc pin :type :tweet :id (nth matches 2) :user (nth matches 1))
       (assoc pin :type :link))))
-
-;; I'm thinking that really I want to be using single and aggregate types of material design components, rather than raw ul's and stuff. But why isn't my Material getting required correctly?
-
-;; Let's redefine tweets to be more like text to recognize that your html is no good right now. 
 
 (defc tweet [pin]
   [:li (:user pin ) " | " [:a {:href (:href pin)} "tweet"] " | " " { first tag, second }" ]
