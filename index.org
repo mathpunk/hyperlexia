@@ -315,7 +315,6 @@ By example:
                         :opt [::phone]))
 #+END_SRC
 
-
 ** UI Components
 
    There must be a tweet component, with a text input field attached to enter in keywords. Upon exit from the input field, an update for the tweet's labels should be persisted.
