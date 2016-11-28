@@ -1,5 +1,6 @@
-(ns hyperlexia.item
-  (:require [clojure.spec :as s]))
+(ns hyperlexia.items
+  (:require #?(:clj [clojure.spec :as s]
+               :cljs [cljs.spec :as s])))
 
 ;; Things that may be identified.
 (s/def ::item (s/keys :req [::id]))
