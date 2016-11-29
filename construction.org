@@ -187,6 +187,21 @@ In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-gen-class at: 
 
 and there's no longer any test cards. Gotta start over.
 
+Incidentally, I also get these errors when I start: 
+
+WARNING: Use of undeclared Var devcards.core/register-card at line 19 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
+WARNING: Use of undeclared Var devcards.core/card-base at line 19 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
+WARNING: Use of undeclared Var devcards.core/test-card at line 19 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
+WARNING: Use of undeclared Var devcards.core/register-card at line 25 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
+WARNING: Use of undeclared Var devcards.core/card-base at line 25 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
+WARNING: Use of undeclared Var devcards.core/test-card at line 25 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
+WARNING: Use of undeclared Var hyperlexia.item/make-tweet at line 28 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
+WARNING: Use of undeclared Var hyperlexia.item/make-tweet at line 28 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
+WARNING: Use of undeclared Var devcards.core/register-card at line 12 /home/chiral/fire/hyperlexia/src/hyperlexia/core.cljs
+WARNING: Use of undeclared Var devcards.core/card-base at line 12 /home/chiral/fire/hyperlexia/src/hyperlexia/core.cljs
+WARNING: Use of undeclared Var devcards.core/test-card at line 12 /home/chiral/fire/hyperlexia/src/hyperlexia/core.cljs
+
+Also, the test called =tweet-destructuring= doesn't load. Hm. 
 
 
 
