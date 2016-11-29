@@ -1,0 +1,71 @@
+#+TITLE: The Anansi Initiative
+#+AUTHOR: thomas H. (first)
+---
+
+
+
+
+Let us:
+
+- specify
+- test
+- view
+- serve
+
+and then move on. 
+
+* Literate Specification
+
+
+
+** What it is to be an item
+
+   An item is something that may be identified.
+
+   Identifiable
+
+   methods by which we might identify
+   - is it in the url? :tweet
+   - is it on a file system we control? :path
+   - is it identified by its contents? :hash-tree-able
+   - is it a document with fields? clojure data structures are hashable (immutable!)
+   
+The first concrete thing we care about are 'tweets', which are granted an id by the Twitter.com corporation. Bearing in mind tendency for the silk of the web to rot, and the relatively slimness of the volume of data we've flagged as worth consideration, we should host this volume in our own databases. 
+
+
+IMPLEMENTATIONS
+===============
+1. For tweets, so I can do twitter & link analysis
+2. For arbitrary links, though I see no reason not to separate hosts again.
+3. Then do paths so I can do my own file system.
+4. About now is when you'd want to consider automated agents or else switch to your filesys analysis idea -- for every path, collect into one set the paths with the same sha1 as a first pass, and for content-similarity as another pass.
+
+
+
+
+** What it is to be a label, or, What we do with items
+
+It is our prerogative to label items however we wish with as many labels as we wish.
+
+- keywords :: words that have descriptive meaning for us
+- terms :: synonym of keywords; to remind us that we permit space-separated keywords
+- tags :: another synonym
+- topics :: not quite a synonym, being a set (possibly singleton) from the keywords
+- decorations :: a label that you cannot describe in language. A song, an image, any other way of meaning. Please provide a uri that we might use the resource when displaying a decorated item. 
+
+
+
+
+
+
+
+** Data Sources
+   Twitter, because it has stolen masses of my attention. Evernote dump, because it was the origin of the project. Locally stored writings, because I seek to turn them into essays or pitches or poems or, god, some proof that I was alive on the planet for one brief moment of 40 or 80 or 120 years. Whatever else I can think of, likely mediated through some other service for organizing them in a beautiful way -- by this what I mean is, put it all on Plex and then do tricks on the paths to the data that I host and the content-hashes of data that I do not host. 
+
+** Items & Labels
+
+   The point of all this is to get to the point where it makes sense to implement the concept lattice functions & protocols found in this Order Theory book I straight up stole from Multnomah. I promise to pay them back. I have to go in for forgiveness. I also have to ask Eric WVGG if he has that book and if so to mail it to 849 N Farragut toot suite. (Or should he keep it?) 
+
+** Network Rethinks
+
+I'm always on the lookout for ways to use p2p concepts and new methods in computronium. FileCoin? Tezos? Akasha? Datasys? Dat Sys? Other experimental services? I'm down to experiment. 
