@@ -2,7 +2,9 @@
   (:require [sablono.core :as sab :include-macros true]
             [rum.mdl :as mdl]
             [cljs.pprint :refer [pprint]]
+            [cljs.test :refer [testing is]]
             [cljs.spec :as s]
+            [hyperlexia.items :as items]
             [hyperlexia.data :refer [likes]]
             [rum.core :as rum :refer [defc]])
   (:require-macros
@@ -61,6 +63,32 @@
 
 ;; This =conform= idea was a sort of fakey typing but I think you should re-write this to use your specs.
 
+
+;; DEFTESTING
+;; =======
+(deftest first-testers
+  "## This is documentation
+   It should work well"
+  (testing "good stuff"
+    (is (= (+ 3 4 55555) 5) "Testing the adding")
+    (is (= (+ 1 0 0 0) 1) "This should work")
+    (is (= 1 3))              
+    (is false)
+    (is (throw "heck"))
+    (is (js/asdf)))
+  "## And here is more documentation"
+  (testing "bad stuff"
+    (is (= (+ 1 0 0 0) 1))        
+    (is (= (+ 3 4 55555) 4))
+    (is false)
+    (testing "mad stuff"
+      (is (= (+ 1 0 0 0) 1))        
+      (is (= (+ 3 4 55555) 4))
+      (is false))))
+
+
+
+
 (def example-tweet-pin
   {:id 803256287622549504
    :href "https://twitter.com/zeynep/status/803256287622549504"})
@@ -73,20 +101,17 @@
       (assoc pin :type :tweet :id (nth matches 2) :user (nth matches 1))
       (assoc pin :type :link))))
 
-(defc tweet [pin]
+#_(defc tweet [pin]
   [:li (:user pin ) " | " [:a {:href (:href pin)} "tweet"] " | " " { first tag, second }" ]
   )
 
-(defcard tweeeeeeeeeeeeeeeet
-  [:ul (tweet { :timestamp "2016-11-11"
+(defcard tweet-fields
+  "At least, maybe"
+{ :timestamp "2016-11-11"
           :user "MadeUpHuman"
           :id 1234123412341234
           :type :tweet
-          :href "https://twitter.com/MadeUpMan/status/1234123412341234" }) ])
-
-
-(defcard tweeeeeeeeeeeeeet
-  (defc hi [wat] [:ul  [:li "hey"]] ))
+          :href "https://twitter.com/MadeUpMan/status/1234123412341234" } )
 
 
 
