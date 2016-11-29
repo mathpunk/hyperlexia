@@ -2,9 +2,6 @@
 #+AUTHOR: thomas H. (first)
 ---
 
-
-
-
 Let us:
 
 - specify
@@ -12,7 +9,7 @@ Let us:
 - view
 - serve
 
-and then move on. 
+and move on. 
 
 * Literate Specification
 
@@ -58,7 +55,6 @@ Items, Pins, and Hrefs: What it is to be an item
   (defprotocol Identifiable (id [x] "Return a context-appropriate unique identifier."))
 
   (s/def ::item (s/or :has-key (s/keys :req-un [::id]) :has-fn #(satisfies? Identifiable %)))
-  ;; thank clojurians.spec@alexmiller
 
 #+END_SRC
 
@@ -66,7 +62,7 @@ Our first instance of such an item is 'the bookmark.' My first observation is th
 
 My second observation is, why are they called bookmarks?, when they do not generally represent a marker of progress through a book, nor do they tend to mean markers of passages within a book. 
 
-So anyway the name seems terrible. Looking about for a suitable replacement, I notice that the word 'pin', and the icon for a pushpin, has come to mean something like my use case. I want to 'put a pin in' some clipping or notion for later. I may even have a concept of what space of notional 'wall' or 'board' I would pin it in, to come across later. 
+So anyway the name seems terrible. Looking about for a suitable replacement, I notice that the word *'pin'*, and the icon for a pushpin, has come to mean something like my use case. I want to 'put a pin in' some clipping or notion for later. I may even have a concept of what space of notional 'wall' or 'board' I would pin it in, to come across later. 
 
 Since this pinning notion works for moodboards, for agenda items, & for the many users of Pinterest and Pinboard, I'm grabbing the word and defining it to just mean: it's a thing with a link in it. 
 
@@ -134,6 +130,7 @@ Identifying and destructuring
    (s/def ::tweet-url (s/and string? #(re-matches tweet-regex %)))
 
    (s/def ::tweet (s/and ::pin #(s/valid? ::tweet-url (:href %))))
+
    (deftest twitter-href-specification
      (testing "twitter URLs"
        (is (s/valid? ::tweet-url "https://twitter.com/zeynep/status/803256287622549504"))
@@ -156,7 +153,7 @@ Hm. Since the information is contained in the tweet's ref, then to make a =tweet
           {:href href
            :user user
            :id id}
-          nil)))
+          {:href href)))
 
   #+END_SRC
 
@@ -166,13 +163,32 @@ And we test that...
 
   (deftest tweet-destructuring
     (testing "url -> tweet with data"
-      (let [href "https://twitter.com/zeynep/status/803256287622549504"
+      (let [href "https://twitter.com/mathpunk/status/123412341234"
             tweet (make-tweet href)]
         (is (= "zeynep" (:user tweet)))
-        (is (or (= 803256287622549504 (:id tweet))
-                (= "803256287622549504" (:id tweet)))))))
+        (is (= "803256287622549504" (:id tweet))))))
 
 #+END_SRC
+
+
+
+FAIL
+clojure.lang.ExceptionInfo: Call to clojure.core/ns did not conform to spec:
+In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-refer-clojure at: [:args :clauses :refer-clojure :clause] predicate: #{:refer-clojure}
+In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-require at: [:args :clauses :require :clause] predicate: #{:require}
+In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-import at: [:args :clauses :import :clause] predicate: #{:import}
+In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-use at: [:args :clauses :use :clause] predicate: #{:use}
+In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-refer at: [:args :clauses :refer :clause] predicate: #{:refer}
+In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-load at: [:args :clauses :load :clause] predicate: #{:load}
+In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-gen-class at: [:args :clauses :gen-class :clause] predicate: #{:gen-class}
+:clojure.spec/args  (hyperlexia.item (:require [cljs.spec :as s] [cljs.test :refer [testing is]]) (:require-macros [devcards.core :as dc :refer [deftest]]))
+ #:clojure.spec{:problems ({:path [:args :clauses :refer-clojure :clause], :pred #{:refer-clojure}, :val :require-macros, :via [:clojure.core.specs/ns-refer-clojure :clojure.core.specs/ns-refer-clojure], :in [2 0]} {:path [:args :clauses :require :clause], :pred #{:require}, :val :require-macros, :via [:clojure.core.specs/ns-require :clojure.core.specs/ns-require], :in [2 0]} {:path [:args :clauses :import :clause], :pred #{:import}, :val :require-macros, :via [:clojure.core.specs/ns-import :clojure.core.specs/ns-import], :in [2 0]} {:path [:args :clauses :use :clause], :pred #{:use}, :val :require-macros, :via [:clojure.core.specs/ns-use :clojure.core.specs/ns-use], :in [2 0]} {:path [:args :clauses :refer :clause], :pred #{:refer}, :val :require-macros, :via [:clojure.core.specs/ns-refer :clojure.core.specs/ns-refer], :in [2 0]} {:path [:args :clauses :load :clause], :pred #{:load}, :val :require-macros, :via [:clojure.core.specs/ns-load :clojure.core.specs/ns-load], :in [2 0]} {:path [:args :clauses :gen-class :clause], :pred #{:gen-class}, :val :require-macros, :via [:clojure.core.specs/ns-gen-class :clojure.core.specs/ns-gen-class], :in [2 0]}), :args (hyperlexia.item (:require [cljs.spec :as s] [cljs.test :refer [testing is]]) (:require-macros [devcards.core :as dc :refer [deftest]]))}, compiling:(/home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc:1:1)
+)
+
+and there's no longer any test cards. Gotta start over.
+
+
+
 
 Retrieving tweet data from the Twitter.com corporation: Hacking the Gibson
 --------------------------------------------------------------------------
@@ -218,7 +234,6 @@ Retrieving tweet data from the Twitter.com corporation: Hacking the Gibson
   id pin -> :hash %
   id file -> sha1 content
 
-
 ** Labels
 
 Labels, Keywords, Terms, Topics: What it is to be a label
@@ -262,6 +277,7 @@ Rendering the App and/or the Devcards
 
 #+END_SRC
 
+
 * Components
 
 First a test tweet with like, maybe the fields we use? Followed by an all-text component.
@@ -289,6 +305,7 @@ First a test tweet with like, maybe the fields we use? Followed by an all-text c
 * Tests
 
   I enjoyed setting up tests right by the specs. Can you come up with further tests?
+
 * Next
 ** Data Sources
    Twitter, because it has stolen masses of my attention. Evernote dump, because it was the origin of the project. Locally stored writings, because I seek to turn them into essays or pitches or poems or, god, some proof that I was alive on the planet for one brief moment of 40 or 80 or 120 years. Whatever else I can think of, likely mediated through some other service for organizing them in a beautiful way -- by this what I mean is, put it all on Plex and then do tricks on the paths to the data that I host and the content-hashes of data that I do not host. 
