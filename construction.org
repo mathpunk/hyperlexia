@@ -44,7 +44,7 @@ Items, Pins, and Hrefs: What it is to be an item
 
    An item is something that may be identified.
 
-#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljc
+#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
 
   (ns hyperlexia.item
     (:require [cljs.spec :as s]
@@ -66,7 +66,7 @@ So anyway the name seems terrible. Looking about for a suitable replacement, I n
 
 Since this pinning notion works for moodboards, for agenda items, & for the many users of Pinterest and Pinboard, I'm grabbing the word and defining it to just mean: it's a thing with a link in it. 
 
-#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljc
+#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
 
   (s/def ::href (s/and string? #(re-matches #"https?://.*" %)))
   (s/def ::pin (s/keys :req [::href]))
@@ -119,12 +119,12 @@ Since this pinning notion works for moodboards, for agenda items, & for the many
 
     Tweets are a kind of pin that I find in: my journal files, my notes files, my browser tabs, my clipboard, having yanked them from my browser tab to try and put them somewhere, anywhere, oh my god where do they go. So that is, they come to me as strings, but they have some meaning attached that I want to get at: their social meaning, through their author and the author's tweets & bio and the author's friends; and the text they contain, which must be server-fetched in order to be stored & analyzed.
 
-Identifying and destructuring
------------------------------
+    Identifying and destructuring
+    -----------------------------
 
     Tweets are granted id's by the Twitter.com corporation. Their authorship is given by an author's Twitter.com service name, a name registed by humans and agents by the leave of the Twitter.com corporation. All of this information is contained in the tweet's href.
 
- #+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljc
+ #+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
 
    (def tweet-regex #"https?://twitter.com/(\w+)/status/(\d+)")
    (s/def ::tweet-url (s/and string? #(re-matches tweet-regex %)))
@@ -159,57 +159,33 @@ Hm. Since the information is contained in the tweet's ref, then to make a =tweet
 
 And we test that...
 
-#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljc
+#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
 
-  (deftest tweet-destructuring
-    (testing "url -> tweet with data"
-      (let [href "https://twitter.com/mathpunk/status/123412341234"
-            tweet (make-tweet href)]
-        (is (= "zeynep" (:user tweet)))
-        (is (= "803256287622549504" (:id tweet))))))
+  #_(deftest tweet-destructuring
+      (testing "url -> tweet with data"
+        (let [href "https://twitter.com/mathpunk/status/123412341234"
+              tweet (make-tweet href)]
+          (is (= "zeynep" (:user tweet)))
+          (is (= "803256287622549504" (:id tweet))))))
+
+  (deftest testing-works
+    (is (= 1 1)))
+
+  (deftest fail-testing-works
+    (is (= 2 1)))
+
+  (deftest fail-testing-still-works
+    (is (= 3 1)))
+
+  (deftest success-testing-still-works
+    (is (= 2 (+ 1 1))))
+
 
 #+END_SRC
 
-
-
-FAIL
-clojure.lang.ExceptionInfo: Call to clojure.core/ns did not conform to spec:
-In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-refer-clojure at: [:args :clauses :refer-clojure :clause] predicate: #{:refer-clojure}
-In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-require at: [:args :clauses :require :clause] predicate: #{:require}
-In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-import at: [:args :clauses :import :clause] predicate: #{:import}
-In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-use at: [:args :clauses :use :clause] predicate: #{:use}
-In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-refer at: [:args :clauses :refer :clause] predicate: #{:refer}
-In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-load at: [:args :clauses :load :clause] predicate: #{:load}
-In: [2 0] val: :require-macros fails spec: :clojure.core.specs/ns-gen-class at: [:args :clauses :gen-class :clause] predicate: #{:gen-class}
-:clojure.spec/args  (hyperlexia.item (:require [cljs.spec :as s] [cljs.test :refer [testing is]]) (:require-macros [devcards.core :as dc :refer [deftest]]))
- #:clojure.spec{:problems ({:path [:args :clauses :refer-clojure :clause], :pred #{:refer-clojure}, :val :require-macros, :via [:clojure.core.specs/ns-refer-clojure :clojure.core.specs/ns-refer-clojure], :in [2 0]} {:path [:args :clauses :require :clause], :pred #{:require}, :val :require-macros, :via [:clojure.core.specs/ns-require :clojure.core.specs/ns-require], :in [2 0]} {:path [:args :clauses :import :clause], :pred #{:import}, :val :require-macros, :via [:clojure.core.specs/ns-import :clojure.core.specs/ns-import], :in [2 0]} {:path [:args :clauses :use :clause], :pred #{:use}, :val :require-macros, :via [:clojure.core.specs/ns-use :clojure.core.specs/ns-use], :in [2 0]} {:path [:args :clauses :refer :clause], :pred #{:refer}, :val :require-macros, :via [:clojure.core.specs/ns-refer :clojure.core.specs/ns-refer], :in [2 0]} {:path [:args :clauses :load :clause], :pred #{:load}, :val :require-macros, :via [:clojure.core.specs/ns-load :clojure.core.specs/ns-load], :in [2 0]} {:path [:args :clauses :gen-class :clause], :pred #{:gen-class}, :val :require-macros, :via [:clojure.core.specs/ns-gen-class :clojure.core.specs/ns-gen-class], :in [2 0]}), :args (hyperlexia.item (:require [cljs.spec :as s] [cljs.test :refer [testing is]]) (:require-macros [devcards.core :as dc :refer [deftest]]))}, compiling:(/home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc:1:1)
-)
-
-and there's no longer any test cards. Gotta start over.
-
-Incidentally, I also get these errors when I start: 
-
-WARNING: Use of undeclared Var devcards.core/register-card at line 19 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
-WARNING: Use of undeclared Var devcards.core/card-base at line 19 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
-WARNING: Use of undeclared Var devcards.core/test-card at line 19 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
-WARNING: Use of undeclared Var devcards.core/register-card at line 25 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
-WARNING: Use of undeclared Var devcards.core/card-base at line 25 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
-WARNING: Use of undeclared Var devcards.core/test-card at line 25 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
-WARNING: Use of undeclared Var hyperlexia.item/make-tweet at line 28 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
-WARNING: Use of undeclared Var hyperlexia.item/make-tweet at line 28 /home/chiral/fire/hyperlexia/src/hyperlexia/item.cljc
-WARNING: Use of undeclared Var devcards.core/register-card at line 12 /home/chiral/fire/hyperlexia/src/hyperlexia/core.cljs
-WARNING: Use of undeclared Var devcards.core/card-base at line 12 /home/chiral/fire/hyperlexia/src/hyperlexia/core.cljs
-WARNING: Use of undeclared Var devcards.core/test-card at line 12 /home/chiral/fire/hyperlexia/src/hyperlexia/core.cljs
-
-Also, the test called =tweet-destructuring= doesn't load. Hm. 
-
-
-
-Retrieving tweet data from the Twitter.com corporation: Hacking the Gibson
---------------------------------------------------------------------------
+**** Retrieving tweet data from the Twitter.com corporation: Hacking the Gibson
 
     Bearing in mind tendency for the silk of the web to rot, and the relatively slimness of the volume of data we've flagged as worth consideration, we should really host this volume in our own databases. Because of restrictions on what browsers can do, this will have to be server-side code.
-
 
 **** Tweet workflows
 
@@ -217,7 +193,6 @@ Retrieving tweet data from the Twitter.com corporation: Hacking the Gibson
   :journal
   :notes
   :clipboard / :pastein
-
 
 *** Files, Paths
 
