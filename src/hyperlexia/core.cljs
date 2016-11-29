@@ -9,11 +9,6 @@
 
 (enable-console-print!)
 
-(deftest href-specifications
-  (testing "string URLs"
-    (is (s/valid? :hyperlexia.item/href "https://twitter.com"))
-    (is (not (s/valid? :hyperlexia.item/href "hi there")))))
-
 (defn main []
   ;; conditionally start the app based on whether the #main-app-area
   ;; node is on the page
