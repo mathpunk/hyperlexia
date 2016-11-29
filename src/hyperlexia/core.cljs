@@ -7,6 +7,8 @@
   (:require-macros
    [devcards.core :as dc :refer [defcard deftest]]))
 
+(enable-console-print!)
+
 (deftest href-specifications
   (testing "string URLs"
     (is (s/valid? :hyperlexia.item/href "https://twitter.com"))

@@ -49,15 +49,16 @@ Items, Pins, and Hrefs: What it is to be an item
 
 #+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljc
 
-(ns hyperlexia.item
-  (:require #?(:clj [clojure.spec :as s]
-               :cljs [cljs.spec :as s])))
+  (ns hyperlexia.item
+    (:require [cljs.spec :as s]
+              [cljs.test :refer [testing is]])
+    (:require-macros [devcards.core :as dc :refer [deftest]]))
 
-;; Identifiable
-(defprotocol Identifiable (id [x] "Return a context-appropriate unique identifier."))
+  ;; Identifiable
+  (defprotocol Identifiable (id [x] "Return a context-appropriate unique identifier."))
 
-(s/def ::item (s/or :has-key (s/keys :req-un [::id]) :has-fn #(satisfies? Identifiable %)))
-;; thank clojurians.spec@alexmiller
+  (s/def ::item (s/or :has-key (s/keys :req-un [::id]) :has-fn #(satisfies? Identifiable %)))
+  ;; thank clojurians.spec@alexmiller
 
 #+END_SRC
 
