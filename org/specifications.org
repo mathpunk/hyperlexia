@@ -12,7 +12,7 @@
   (ns hyperlexia.item
     (:require [cljs.spec :as s]
               [cljs.test :refer [testing is]])
-    (:require-macros [devcards.core :as dc :refer [deftest]]))
+    (:require-macros [devcards.core :as dc :refer [defcard deftest]]))
 
   ;; Identifiable
   (defprotocol Identifiable (id [x] "Return a context-appropriate unique identifier."))
@@ -41,13 +41,13 @@ Mostly I figure that datoms will get =id= fields as they get transformed into ou
 #+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
 
   (s/def ::href (s/and string? #(re-matches #"https?://.*" %)))
-  (s/def ::pin (s/keys :req [::href]))
+  (s/def ::pin (s/keys :req-un [::href]))
 
 #+END_SRC
 
 Note: I spent some time worrying over the fact that a string like "file:///home/person/some-data/data.txt" represents a resource, too, but one that's on a local machine. Thing is, I'm not clear on URIs vs URLs vs Resources vs Files vs Blockdevices vs Bittorrents vs ??? so, I'm assuming we care about stuff that's reachable via web browser and I'll worry about where they are later.
 
-So! Did I define my things right? Let's write a test:
+So! Did I define things right? Let's write a test:
 
 #+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
 
@@ -58,20 +58,15 @@ So! Did I define my things right? Let's write a test:
       (is (not (s/valid? ::href "hi there")))))
 
   (deftest pin-specification
-    (testing "simple object with href key"
-      (is (s/valid? ::pin {:href "https://twitter.com"
-                           :id "23412343"}))
-      (is (not (s/valid? ::pin {:href "hey cool"
-                                :id 4434224})))))
+    (testing "simple pin object"
+      (is (s/valid? ::pin {:href "https://twittre.com"}))
+      (is (not (s/valid? ::pin {})))
+      (is (not (s/valid? ::pin {:href "clik me"})))))
 
 #+END_SRC
 
 
-
-
-
-
-*** A more concrete item: Tweets
+*** Tweets 
 
     Tweets are a kind of pin that I find in: my journal files, my notes files, my browser tabs, my clipboard, having yanked them from my browser tab to try and put them somewhere, anywhere, oh my god where do they go. So that is, they come to me as strings, but they have some meaning attached that I want to get at: their social meaning, through their author and the author's tweets & bio and the author's friends; and the text they contain, which must be server-fetched in order to be stored & analyzed.
 
@@ -80,7 +75,8 @@ So! Did I define my things right? Let's write a test:
 
     Tweets are granted id's by the Twitter.com corporation. Their authorship is given by an author's Twitter.com service name, a name registed by humans and agents by the leave of the Twitter.com corporation. All of this information is contained in the tweet's href.
 
- #+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
+ #+BEGIN_SRC clojure :tangle 
+;; ../src/hyperlexia/item.cljs
 
    (def tweet-regex #"https?://twitter.com/(\w+)/status/(\d+)")
    (s/def ::tweet-url (s/and string? #(re-matches tweet-regex %)))
@@ -114,9 +110,6 @@ Hm. Since the information is contained in the tweet's ref, then to make a =tweet
   #+END_SRC
 
 And we test that...
-
-#+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
-
   #_(deftest tweet-destructuring
       (testing "url -> tweet with data"
         (let [href "https://twitter.com/mathpunk/status/123412341234"
@@ -124,20 +117,6 @@ And we test that...
           (is (= "zeynep" (:user tweet)))
           (is (= "803256287622549504" (:id tweet))))))
 
-  (deftest testing-works
-    (is (= 1 1)))
-
-  (deftest fail-testing-works
-    (is (= 2 1)))
-
-  (deftest fail-testing-still-works
-    (is (= 3 1)))
-
-  (deftest success-testing-still-works
-    (is (= 2 (+ 1 1))))
-
-
-#+END_SRC
 
 **** Retrieving tweet data from the Twitter.com corporation: Hacking the Gibson
 
@@ -161,7 +140,6 @@ And we test that...
     (s/def ::file (s/keys (s/or ::path
                                 (s/and vector? (s/coll-of ::path)))))
  #+END_SRC
-
 
 *** Other potential items, id methods, identifiables
 
