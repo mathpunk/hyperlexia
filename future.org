@@ -1,0 +1,29 @@
+
+* Next
+** Data Sources
+   Twitter, because it has stolen masses of my attention. Evernote dump, because it was the origin of the project. Locally stored writings, because I seek to turn them into essays or pitches or poems or, god, some proof that I was alive on the planet for one brief moment of 40 or 80 or 120 years. Whatever else I can think of, likely mediated through some other service for organizing them in a beautiful way -- by this what I mean is, put it all on Plex and then do tricks on the paths to the data that I host and the content-hashes of data that I do not host. 
+
+** Items & Labels
+
+We host or reference items, and we label them as we wish. 
+
+   The point of all this is to get to the point where it makes sense to implement the concept lattice functions & protocols found in this Order Theory book I straight up stole from Multnomah. I promise to pay them back. I have to go in for forgiveness. I also have to ask Eric WVGG if he has that book and if so to mail it to 849 N Farragut toot suite. (Or should he keep it?) 
+
+Another point is to distinguish between my labels and your labels --- to import your labels, disagree with your labels, modify your labels, combine our labels, annote subjunctive labels. To do interesting things with the ways that we reshuffle things by the way that we name them (or perhaps we should say 'multiname them'? nah it'll never catch on). 
+
+Another another point is to take those concept lattice functions, and derive transformations from mathematical work that has been done on them in the abstract. It is my understanding that there are graph drawing methods to represent concepts, subconcepts, and superconcepts in rather continuous ways. That would be a big help in exploring a large collection of items or, dually, a large collection of collections of labels. 
+** Contexts, Workflows
+;; Contexts
+;; --------
+
+;; Morning message
+
+;; Morning structure
+
+;; Evening message
+
+;; Evening structure
+
+** Network Rethinks
+
+I'm always on the lookout for ways to use p2p concepts and new methods in computronium. FileCoin? Tezos? Akasha? Datasys? Dat Sys? Other experimental services? I'm down to experiment. 

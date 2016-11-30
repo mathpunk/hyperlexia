@@ -47,6 +47,139 @@ Mostly I figure that datoms will get =id= fields as they get transformed into ou
 
 Note: I spent some time worrying over the fact that a string like "file:///home/person/some-data/data.txt" represents a resource, too, but one that's on a local machine. Thing is, I'm not clear on URIs vs URLs vs Resources vs Files vs Blockdevices vs Bittorrents vs ??? so, I'm assuming we care about stuff that's reachable via web browser and I'll worry about where they are later.
 
+So! Did I define my things right? Let's write a test:
+
+#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
+
+  (deftest href-specification
+    (testing "string URLs"
+      (is (s/valid? ::href "https://twitter.com"))
+      (is (s/valid? ::href "http://google.com"))
+      (is (not (s/valid? ::href "hi there")))))
+
+  (deftest pin-specification
+    (testing "simple object with href key"
+      (is (s/valid? ::pin {:href "https://twitter.com"
+                           :id "23412343"}))
+      (is (not (s/valid? ::pin {:href "hey cool"
+                                :id 4434224})))))
+
+#+END_SRC
+
+
+
+
+
+
+*** A more concrete item: Tweets
+
+    Tweets are a kind of pin that I find in: my journal files, my notes files, my browser tabs, my clipboard, having yanked them from my browser tab to try and put them somewhere, anywhere, oh my god where do they go. So that is, they come to me as strings, but they have some meaning attached that I want to get at: their social meaning, through their author and the author's tweets & bio and the author's friends; and the text they contain, which must be server-fetched in order to be stored & analyzed.
+
+    Identifying and destructuring
+    -----------------------------
+
+    Tweets are granted id's by the Twitter.com corporation. Their authorship is given by an author's Twitter.com service name, a name registed by humans and agents by the leave of the Twitter.com corporation. All of this information is contained in the tweet's href.
+
+ #+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
+
+   (def tweet-regex #"https?://twitter.com/(\w+)/status/(\d+)")
+   (s/def ::tweet-url (s/and string? #(re-matches tweet-regex %)))
+
+   (s/def ::tweet (s/and ::pin #(s/valid? ::tweet-url (:href %))))
+
+   (deftest twitter-href-specification
+     (testing "twitter URLs"
+       (is (s/valid? ::tweet-url "https://twitter.com/zeynep/status/803256287622549504"))
+       (is (not (s/valid? ::tweet-url "hi there")))
+       (is (not (s/valid? ::tweet-url "https://thenewyorktimes.com")))))
+
+ #+END_SRC
+
+Hm. Since the information is contained in the tweet's ref, then to make a =tweet-url= into a =tweet= object, why not use a =make-= function, and skip all this nonsense about protocols. (Also, let's see if we can't go ahead and discover namespaced devcards through power of naivete.) 
+
+  #+BEGIN_SRC clojure  
+
+    (s/def ::tweet (s/and ::pin #(s/valid? ::tweet-url (:href %))))
+
+    (defn make-tweet [href]
+      (let [regex #"https://twitter.com/(\w+)/status/(\d+).*"]
+        (if-let [matches (first (re-seq regex href))
+                 id (nth matches 2)
+                 user (nth matches 1)]
+          {:href href
+           :user user
+           :id id}
+          {:href href)))
+
+  #+END_SRC
+
+And we test that...
+
+#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
+
+  #_(deftest tweet-destructuring
+      (testing "url -> tweet with data"
+        (let [href "https://twitter.com/mathpunk/status/123412341234"
+              tweet (make-tweet href)]
+          (is (= "zeynep" (:user tweet)))
+          (is (= "803256287622549504" (:id tweet))))))
+
+  (deftest testing-works
+    (is (= 1 1)))
+
+  (deftest fail-testing-works
+    (is (= 2 1)))
+
+  (deftest fail-testing-still-works
+    (is (= 3 1)))
+
+  (deftest success-testing-still-works
+    (is (= 2 (+ 1 1))))
+
+
+#+END_SRC
+
+**** Retrieving tweet data from the Twitter.com corporation: Hacking the Gibson
+
+    Bearing in mind tendency for the silk of the web to rot, and the relatively slimness of the volume of data we've flagged as worth consideration, we should really host this volume in our own databases. Because of restrictions on what browsers can do, this will have to be server-side code.
+
+**** Tweet workflows
+
+ Want to get tweets out of:
+  :journal
+  :notes
+  :clipboard / :pastein
+
+*** Files, Paths
+
+ The time will come when you will want your local files, which you have written by hand or hosted at your own expense, to be considered as items.
+
+ #+BEGIN_SRC clojure
+
+    (s/def ::path #?(:clj #(clojure.java.io/as-relative-path %)
+                     :cljs string?))
+    (s/def ::file (s/keys (s/or ::path
+                                (s/and vector? (s/coll-of ::path)))))
+ #+END_SRC
+
+
+*** Other potential items, id methods, identifiables
+
+     Methods by which we might identify
+     - is it in the url? :tweet
+     - is it from pinboard? use pinboard's hash :pinboard
+     - is it on a file system we control? :path
+     - wait that's for any file system --- want to just do :path and /hope/ you control it?
+     - is it identified by its contents? :hash-tree-able
+     - is it a document with fields? clojure data structures are hashable (immutable!)
+
+  Items
+  -----
+  Items can be identified.
+  id tweet -> [status (re-matches...)]
+  id pin -> :hash %
+  id file -> sha1 content
+
 
 ** Labels
 
