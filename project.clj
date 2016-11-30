@@ -28,7 +28,6 @@
 
   :source-paths ["src"]
 
-  :figwheel { :ring-handler 'hyperlexia.server/handler }
 
   :cljsbuild {
               :builds [{:id "devcards"
@@ -59,7 +58,8 @@
                                    :output-to  "resources/public/js/compiled/hyperlexia.js"
                                    :optimizations :advanced}}]}
 
-  :figwheel { :css-dirs ["resources/public/css"] }
+  :figwheel { :css-dirs ["resources/public/css"]
+              :ring-handler 'hyperlexia.server/handler }
 
   :profiles {:dev {:dependencies [[binaryage/devtools "0.8.2"]
                                   [figwheel-sidecar "0.5.8"]
