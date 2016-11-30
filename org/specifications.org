@@ -7,7 +7,7 @@
 
    > An item is something that may be identified.
 
-#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
 
   (ns hyperlexia.item
     (:require [cljs.spec :as s]
@@ -38,7 +38,7 @@ Mostly I figure that datoms will get =id= fields as they get transformed into ou
 
     Since this pinning notion works for moodboards, for agenda items, & for the many users of Pinterest and Pinboard, I'm grabbing the word and defining it to mean: it's a thing with an Internet web page link as one of its attributes. 
 
-#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
 
   (s/def ::href (s/and string? #(re-matches #"https?://.*" %)))
   (s/def ::pin (s/keys :req [::href]))
@@ -49,7 +49,7 @@ Note: I spent some time worrying over the fact that a string like "file:///home/
 
 So! Did I define my things right? Let's write a test:
 
-#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
 
   (deftest href-specification
     (testing "string URLs"
@@ -80,7 +80,7 @@ So! Did I define my things right? Let's write a test:
 
     Tweets are granted id's by the Twitter.com corporation. Their authorship is given by an author's Twitter.com service name, a name registed by humans and agents by the leave of the Twitter.com corporation. All of this information is contained in the tweet's href.
 
- #+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
+ #+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
 
    (def tweet-regex #"https?://twitter.com/(\w+)/status/(\d+)")
    (s/def ::tweet-url (s/and string? #(re-matches tweet-regex %)))
@@ -115,7 +115,7 @@ Hm. Since the information is contained in the tweet's ref, then to make a =tweet
 
 And we test that...
 
-#+BEGIN_SRC clojure :tangle src/hyperlexia/item.cljs
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
 
   #_(deftest tweet-destructuring
       (testing "url -> tweet with data"

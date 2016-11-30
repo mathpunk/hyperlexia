@@ -7,7 +7,7 @@ If you want a simple server, set it up in the =project.clj=. For now, we've just
 
 Gotta fix that thing where I'm requiring sablono.
 
- #+BEGIN_SRC clojure :tangle src/hyperlexia/core.cljs
+ #+BEGIN_SRC clojure :tangle ../src/hyperlexia/core.cljs
 
  (ns hyperlexia.core
    (:require [sablono.core :as sab :include-macros true]
@@ -52,7 +52,7 @@ First a test tweet with like, maybe the fields we use? Followed by an all-text c
 
    Note: I'm interested in trying =rum= out over =sablono= --- a mathematician doing work in science communcation & visualization spoke highly of it. So figure out the =rum= version of the below.
 
-#+BEGIN_SRC clojure :tangle src/hyperlexia/core.cljs
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/core.cljs
 
 (defn main []
   ;; conditionally start the app based on whether the #main-app-area
