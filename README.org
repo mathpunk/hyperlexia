@@ -8,18 +8,10 @@ readme driven development
 
     *How come?* Functions! They're a left-module of vars acting on data! Fun to write!
 
-*** Environment
-    Figwheel + Devcards.
-
-    *How come?* Closest we've got to a visual repl. 
-    
 *** Dependencies
     React via Rum.
 
     *How come?* It is the smallest React wrapper that I'm aware of. It is used and recommended by a mathematician doing information visualization work for the public (see, Communicating Risk talk). It is intended to be compatible with DataScript, which is a pattern of interest for me. 
-
-*** Development
-    Navigate to directory. =lein figwheel=. Now you're in the devcards build. I'll develop in this until I am getting happy with the results, and then I'll look into how to make a new figwheel build for production.
 
 ** Data Sources
 
