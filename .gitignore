@@ -3,3 +3,5 @@ resources/public/js
 target/
 .cljs_rhino_repl
 .nrepl-port
+start.sh
+org/*Org Src*
