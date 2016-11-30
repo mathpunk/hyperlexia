@@ -1,0 +1,48 @@
+#+TITLE: Hyperlexia, an Anansi project
+#+AUTHOR: thomas H. (first author)
+---
+
+* Development Approach
+
+  I'd like to learn these three approaches to development at once.
+
+- Literate programming
+- clojure.spec
+- devcards
+
+** Literate programming
+
+   I believe in the power of prose to define things, and I anticipate doing work in which the explanations are as important as the code -- data science, data storytelling, stories + visualizations, &c.
+   
+   I'm using org-mode. This post http://fgiasson.com/blog/index.php/2016/08/11/literate-clojure-programming-anatomy-of-a-org-mode-file/
+   and the rest of the series was useful for getting my environment set up in a reasonable way, though devcards (below) make running code in the source blocks much less important.
+
+** *clojure.spec* 
+
+ *Technology*: Clojure.spec, by Rich Hickey and others. Provide URL.
+
+ As a mathematician who likes programming, it is very tempting to want to bring type theory into my projects. But as a poet, I know that it is possible to express more than you can prove. 
+
+ Hence my attraction to =clojure.spec=, a project in development this year (2016) that is a method for doing regular-expression-style algebra (half-remembered reference: Look up Kleene closures?) on boolean functions. So it's like types in that you can dispatch functions on whether a thing, oh let's say,  IS or IS NOT a q-rhomboidal framizdat (a very important collection of letters I just made up), provided that someone can give you a definition of what it means to be or not be such a framizdat. 
+
+ This seems good. Reasons:
+
+ 1) It appears to eat type theory, provided that types are small enough (in the 'small category' sense) to admit a membership function. 
+ 2) Generative test generation has a lot of automated programming potential, i.e., the "teach a NN to pass a unit test" trick. 
+ 3) I can imagine, though do not know how to implement, generalizations to fuzzy type theory. 
+
+Tangent: there is a new book on type-driven development in Idris. I'd love to pick that up and either learn the language or steal its ideas.
+
+** devcards
+
+ *Technology*: Devcards, by Bruce Hauman and others. Provide URL.
+
+ Ugh, command line, right? It's crazy powerful but it's just....... letters! 
+
+ So I'm going to try doing all my tests in the visual style afforded by devcards. You can write tests in it to look at your logic, and you can write little bits of UI. You can also use the generative methods that =clojure.spec= provides to create a mess of test data so that you can look for edge conditions in which your UI looks like crap. Cool. (Refer to that Juxt blog post.)
+
+
+* Next
+
+Let's [[name some things][.... 
+
