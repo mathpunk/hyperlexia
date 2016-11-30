@@ -5,15 +5,96 @@
 
  Bearing in mind tendency for the silk of the web to rot, and the relatively slimness of the volume of data we've flagged as worth consideration, we should really host this volume in our own databases. Because of restrictions on what browsers can do, this will have to be server-side code.
 
+ References:
+ -----------
+ https://github.com/adamwynne/twitter-api
+ http://nerd.kelseyinnis.com/blog/2014/05/06/talking-to-yourself-a-twitter-bot-in-clojure-by-a-total-newb/
+
+** Our Server
+
+I'm a little intrigued by juxt's =yada=, because it looks hella data-driven. But, it seems like data-driven works best when you have written the thing a million times and you know exactly what needs to be specified. Since I ain't all that, let's make a route-handler with =compojure= and tell =figwheel= about it in its configuration options. 
+
+*** Configuration
+
+Add dependencies to [[file:~/fire/hyperlexia/project.clj::;;%20%5Btwitter-api%20"0.7.8"%5D][project.clj]].
 
 #+BEGIN_SRC clojure
 
-  (def get-by-id-url [id]
-    (str "https://api.twitter.com/1.1/statuses/show.json?id=" id))
+[compojure "1.5.1"]
 
 #+END_SRC
 
-But alas, we need to authenticate. Let's get the 
+Tell figwheel about the server:
+
+#+BEGIN_QUOTE
+
+Configurations happens in your =project.clj= file and is separated into serverside configs =(:figwheel {...}= on your "root" level) and per-build, or client side, configs =(:cljsbuild {:builds [{:figwheel {...}}]})=.
+
+-- https://github.com/bhauman/lein-figwheel/wiki/Configuration-Options
+
+#+END_QUOTE
+
+Hence, add
+
+#+BEGIN_SRC clojure
+
+:ring-handler 'hyperlexia.server/handler
+
+#+END_SRC
+
+to the =:figwheel= key in [[file:~/fire/hyperlexia/project.clj:::figwheel%20{%20:ring-handler%20'hyperlexia.server/handler%20}][project.clj.]] 
+
+** Smoke Test
+
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
+
+  (ns hyperlexia.server
+    (:require [compojure.core :refer :all]
+              [compojure.route :as route]))
+
+  (defroutes handler
+    (GET "/hello" [] "<h1>Hello World</h1>")
+    (route/not-found "<h1>Page not found</h1>"))
+
+#+END_SRC
+
+And figwheel doesn't start! 
+
+*** TODO Debug figwheel/server failure
+
+** Twitter.com's API 
+
+The twitter-api library 
+
+#+BEGIN_QUOTE
+
+All of the functions follow Twitter's naming conventions; we convert a resource's path into the function name. For example:
+
+https://api.twitter.com/1.1/account/settings is available as account-settings
+https://api.twitter.com/1.1/statuses/update_with_media is available as statuses-update-with-media
+
+Parameters are uniform across the functions. All calls can accept:
+
+:oauth-creds is the result of the make-oauth-creds function.
+:params is a map of parameters to pass, eg, list_id=123 would be {:list-id 123}
+:headers adds or overrides any of the request headers sent to Twitter.
+:verb overrides the HTTP verb used to make the request, for resources that support it (eg, account-settings)
+:callbacks attaches a custom callback to the request.
+All of the API calls will return the full HTTP response of the request, including headers.
+
+#+END_QUOTE
+
+
+
+https://dev.twitter.com/rest/reference/get/statuses/show/id
+
+Something like
+
+** Authenticating
+
+   We ask Twitter.com to provide credentials for our app, and authenticate it with our private account. We take the four strings thus created, and put them into the environment (so that they don't end up in our source code, a security hole). There's a library to do this called =environ=, but for now I'm using =System/get-env= and a start script that loads the variables into the environment before starting =figwheel=.
+
+Here's some code that loads it to use later.
 
 #+BEGIN_SRC clojure
 
@@ -27,114 +108,6 @@ But alas, we need to authenticate. Let's get the
 #+END_SRC
 
 
+** twitter-api 
 
-(ns tipbot.core
-  (:use
-   [twitter.oauth]
-   [twitter.callbacks]
-   [twitter.callbacks.handlers]
-   [twitter.api.restful])
-  (:import
-   (twitter.callbacks.protocols SyncSingleCallback)))
-
-(def my-creds (make-oauth-creds "my-special-personal-app-consumer-key"
-                                "none-of-your-business-app-consumer-secret"
-                                "mine-and-only-mine-user-access-token"
-                                "no-you-cant-have-my-user-access-token-secret"))
-
-(defn -main
-  []
-  (println
-      (statuses-mentions-timeline :oauth-creds my-creds
-                                :params {:screen-name "abotcalledquest"})))
-
-(defn -main
-  []
-  (println
-      (statuses-mentions-timeline :oauth-creds my-creds
-                                  :params {:screen-name "abotcalledquest"}
-                                  :callbacks (SyncSingleCallback. response-return-body
-                                                                  response-throw-error
-                                                                  exception-rethrow)))
-
-(defn -main
-  []
-  (dorun
-      (println 
-          (map :text
-              (statuses-mentions-timeline :oauth-creds my-creds
-                                      :params {:screen-name "abotcalledquest"}
-                                      :callbacks (SyncSingleCallback. response-return-body
-                                                                      response-throw-error
-                                                                      exception-rethrow))))))
-
-       
-
-(defn -main
-  []
-  (dorun 
-      (println 
-      (map #(select-keys % [:text :user])
-              (statuses-mentions-timeline :oauth-creds my-creds
-                                           :params {:screen-name "abotcalledquest"}
-                                           :callbacks (SyncSingleCallback. 
-                                                               response-return-body
-                                                               response-throw-error
-                                                               exception-rethrow))))))
-
-Turns out the user has a lot of info. We want to get the user’s id only. There’s a couple of ways of getting at nested values in maps in Clojure (don’t sleep on that arrow, we’ll come back to it!) Let’s use get-in to pull the user id out here.
-
-(defn -main
-  []
-  (dorun
-      (println 
-      (map #(get-in % [:user :id_str])
-              (statuses-mentions-timeline :oauth-creds my-creds
-                                           :params {:screen-name "abotcalledquest"}
-                                           :callbacks (SyncSingleCallback. 
-                                                               response-return-body
-                                                               response-throw-error
-                                                               exception-rethrow))))))
-This works, but we need both the user id and the tweet’s text. Let’s go ahead and pull the response formatting step out into its own function.
-
-(defn extractTweetInfo
-  [tweetMap]
-  {:tweet (:text tweetMap), :user (get-in tweetMap [:user :id_str])})
-
-(defn -main
-  []
-  (dorun
-      (println 
-      (map extractTweetInfo
-              (statuses-mentions-timeline :oauth-creds my-creds
-                                           :params {:screen-name "abotcalledquest"}
-                                           :callbacks (SyncSingleCallback. 
-                                                               response-return-body
-                                                               response-throw-error
-                                                               exception-rethrow))))))
-
-(defn -main
-  []
-  (dorun
-      (println
-      (filter #(.contains (:tweet %) "can i kick it")
-              (map extractTweetInfo
-              (statuses-mentions-timeline :oauth-creds my-creds
-                                               :params {:screen-name "abotcalledquest"}
-                                               :callbacks (SyncSingleCallback. 
-                                                             response-return-body 
-                                                             response-throw-error 
-                                                             exception-rethrow))))
-
-(defn -main
-  []
-  (dorun
-    (->> (statuses-mentions-timeline :oauth-creds my-creds
-                                   :params {:screen-name "abotcalledquest"}
-                                   :callbacks (SyncSingleCallback. response-return-body  
-                                                                   response-throw-error  
-                                                                   exception-rethrow))
-         (map extractTweetInfo)
-         (filter #(-> % :tweet (.contains "can i kick it")))
-         (println))))
 

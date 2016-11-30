@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :min-lein-version "2.7.1"
-  
+
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
                  [org.clojure/clojurescript "1.9.229"]
                  [devcards "0.2.2"]
@@ -15,9 +15,9 @@
                  ;; when not using devcards
                  [cljsjs/react "15.3.1-0"]
                  [cljsjs/react-dom "15.3.1-0"]
-                 ;; [twitter-api "0.7.8"]
+                 [compojure "1.5.1"]
                  ;; [cljsjs/material "1.2.1-0"]
-                 [rum-mdl "0.2.0"]
+                 ;; [rum-mdl "0.2.0"]
                  ]
 
   :plugins [[lein-figwheel "0.5.8"]
@@ -25,8 +25,10 @@
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled"
                                     "target"]
-  
+
   :source-paths ["src"]
+
+  :figwheel { :ring-handler 'hyperlexia.server/handler }
 
   :cljsbuild {
               :builds [{:id "devcards"
