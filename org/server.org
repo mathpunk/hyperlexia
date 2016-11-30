@@ -1,0 +1,8 @@
+#+TITLE: Server-side Code
+
+
+* Retrieving data from the Twitter.com corporation: Hacking the Gibson
+
+ Bearing in mind tendency for the silk of the web to rot, and the relatively slimness of the volume of data we've flagged as worth consideration, we should really host this volume in our own databases. Because of restrictions on what browsers can do, this will have to be server-side code.
+
+

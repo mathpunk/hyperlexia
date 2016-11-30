@@ -27,3 +27,38 @@ Another another point is to take those concept lattice functions, and derive tra
 ** Network Rethinks
 
 I'm always on the lookout for ways to use p2p concepts and new methods in computronium. FileCoin? Tezos? Akasha? Datasys? Dat Sys? Other experimental services? I'm down to experiment. 
+** Tweet workflows
+
+Want to get tweets out of:
+ :journal
+ :notes
+ :clipboard / :pastein
+
+** Files, Paths
+
+The time will come when you will want your local files, which you have written by hand or hosted at your own expense, to be considered as items.
+
+#+BEGIN_SRC clojure
+
+   (s/def ::path #?(:clj #(clojure.java.io/as-relative-path %)
+                    :cljs string?))
+   (s/def ::file (s/keys (s/or ::path
+                               (s/and vector? (s/coll-of ::path)))))
+#+END_SRC
+
+** Other potential items, id methods, identifiables
+
+    Methods by which we might identify
+    - is it in the url? :tweet
+    - is it from pinboard? use pinboard's hash :pinboard
+    - is it on a file system we control? :path
+    - wait that's for any file system --- want to just do :path and /hope/ you control it?
+    - is it identified by its contents? :hash-tree-able
+    - is it a document with fields? clojure data structures are hashable (immutable!)
+
+ Items
+ -----
+ Items can be identified.
+ id tweet -> [status (re-matches...)]
+ id pin -> :hash %
+ id file -> sha1 content

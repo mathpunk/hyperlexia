@@ -1,0 +1,24 @@
+
+** Labels
+
+Labels, Keywords, Terms, Topics: What it is to be a label
+---------------------------------------------------------
+
+It is our prerogative to label items however we wish with as many labels as we wish.
+
+- keywords :: words that have descriptive meaning for us
+- terms :: synonym of keywords; to remind us that we permit space-separated keywords
+- tags :: another synonym
+- topics :: not quite a synonym, being a set (possibly singleton) from the keywords
+- decorations :: a label that you cannot describe in language. A song, an image, any other way of meaning. Please provide a uri that we might use the resource when displaying a decorated item. 
+
+
+Tags are a set of terms, or a comma-separated string of terms. Something that is tagged, it has a nonblank string or nonempty set of terms.
+
+#+BEGIN_SRC clojure
+
+  (s/def ::tags (s/or :string string? :set set?))
+  (s/def ::tagged (s/and (s/keys :req [::tags])
+                         #(apply (complement empty?) [(:tags %)])))
+
+#+END_SRC

@@ -44,5 +44,5 @@ Tangent: there is a new book on type-driven development in Idris. I'd love to pi
 
 * Next
 
-Let's [[name some things][.... 
+  Let's name some things! First thing to define: [[file:items.org][what is an item]]?
 

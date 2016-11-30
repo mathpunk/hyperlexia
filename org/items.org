@@ -1,0 +1,134 @@
+#+TITLE: Naming Things: Items
+
+
+  Naming things is important. At the most abstract, this system is about =items= and =labels=. To become more concrete, we will define specific =items= (like 'hrefs' and 'bookmarks' and 'tweets' and 'files') and their properties. 
+
+** Items
+
+   > An item is something that may be identified.
+
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
+
+  (ns hyperlexia.item
+    (:require [cljs.spec :as s]
+              [cljs.test :refer [testing is]])
+    (:require-macros [devcards.core :as dc :refer [defcard deftest]]))
+
+  ;; Identifiable
+  (defprotocol Identifiable (id [x] "Return a context-appropriate unique identifier."))
+
+  (s/def ::item (s/or :has-key (s/keys :req-un [::id]) :has-fn #(satisfies? Identifiable %)))
+
+#+END_SRC
+
+Mostly I figure that datoms will get =id= fields as they get transformed into our system. But maybe it will make sense to give some of them an =id= function in the future. 
+
+*** Pins
+
+    Let's get more specific.
+
+    Our first instance of such an item is 'the bookmark.' My first observation is that every bookmark storage solution I've seen always looks kludgy, or else is susceptible to the "check your data in, never check your data out" problem. For a while I collected instances of people complaining about their unhappiness with bookmarking, some of which may be found here:
+
+    - https://pinboard.in/search/u:mathpunk?query=anansi-ux
+    - https://pinboard.in/search/u:mathpunk?query=anansi
+
+    My second observation is, why are they called bookmarks?, when they do not generally represent a marker of progress through a book, nor do they tend to mean markers of passages within a book. 
+
+    So anyway 'bookmark' is a lousy name. Looking about for a suitable replacement, I notice that the word *'pin'*, and the icon for a pushpin, has come to mean something like my use case. I want to 'put a pin in' some clipping or notion for later. I may even have a concept of what space of notional 'wall' or 'board' I would pin it in, to come across later. 
+
+    Since this pinning notion works for moodboards, for agenda items, & for the many users of Pinterest and Pinboard, I'm grabbing the word and defining it to mean: it's a thing with an Internet web page link as one of its attributes. 
+
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
+
+  (s/def ::href (s/and string? #(re-matches #"https?://.*" %)))
+  (s/def ::pin (s/keys :req-un [::href]))
+
+#+END_SRC
+
+Note: I spent some time worrying over the fact that a string like "file:///home/person/some-data/data.txt" represents a resource, too, but one that's on a local machine. Thing is, I'm not clear on URIs vs URLs vs Resources vs Files vs Blockdevices vs Bittorrents vs ??? so, I'm assuming we care about stuff that's reachable via web browser and I'll worry about where they are later.
+
+So! Did I define things right? Let's test:
+
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
+
+  (deftest href-specification
+    (testing "string URLs"
+      (is (s/valid? ::href "https://twitter.com"))
+      (is (s/valid? ::href "http://google.com"))
+      (is (not (s/valid? ::href "hi there")))))
+
+  (deftest pin-specification
+    (testing "simple pin object"
+      (is (s/valid? ::pin {:href "https://twittre.com"}))
+      (is (not (s/valid? ::pin {})))
+      (is (not (s/valid? ::pin {:href "clik me"})))))
+
+#+END_SRC
+
+Looks good!
+
+*** Tweets 
+
+    Tweets are a kind of pin that I find in: my journal files, my notes files, my browser tabs, my clipboard having yanked them from my browser tabs to try and put them somewhere, anywhere, oh my god where do they go. 
+
+That is, they come to me as strings. Those strings contain:
+
+- the name of a Twitter.com user, which has social meaning (through follows, followers, bio, and tweet history);
+- the id of a Twitter.com tweet, which has freetext information, temporal information, and further social information (such as, who RTd it, who liked it, who responded to it, was it part of a thread).
+
+This information is something that I need to get out of the Twitter.com api. That means, 
+
+- we'll need to have a server process running in order to call the api;
+- we'll have to handle authentication to prove that I have the right to get at this data. 
+
+I'll also want to persist the information rather than call for it every time, so it's also nearly time to write a persistence layer, i.e., some sort of database in which to cache the tweets that I pull out. 
+
+Before we move on to the server code, let's define some useful specs for tweets. (Note: If you want to use these in the server-side code, you'll want to make this into cljc code so that it can be shared with the server.)
+
+ #+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs
+
+   (def tweet-regex #"https?://twitter.com/(\w+)/status/(\d+)")
+   (s/def ::tweet-url (s/and string? #(re-matches tweet-regex %)))
+
+   (s/def ::tweet (s/and ::pin #(s/valid? ::tweet-url (:href %))))
+
+   (deftest twitter-href-specification
+     (testing "twitter URLs"
+       (is (s/valid? ::tweet-url "https://twitter.com/mathpunk/status/1234123412341234"))
+       (is (not (s/valid? ::tweet-url "hi there")))
+       (is (not (s/valid? ::tweet-url "https://thenewyorktimes.com")))))
+
+   (deftest twitter-pin-specification
+     (testing "simple objects with and without twitter URLs"
+       (is (s/valid? ::tweet {:href "https://twitter.com/mathpunk/status/1234123412341234"}))
+       (is (not (s/valid? ::tweet {:freetext "some words"})))
+       (is (not (s/valid? ::tweet {:href "https://gogole.com"})))
+       ))
+
+ #+END_SRC
+
+I'd been thinking I had to write an =id= function in order to get at the Twitter.com identifier, but I think it's just as good (?) to write a =make-= function to destructure the strings representing tweets into tweet objects (the ones defined by =::tweet=).
+
+  #+BEGIN_SRC clojure :tangle ../src/hyperlexia/item.cljs 
+
+    (defn href->tweet [href]
+      (let [regex #"https://twitter.com/(\w+)/status/(\d+).*"]
+        (if-let [matches (first (re-seq regex href))]
+          (let [id (nth matches 2)
+                user (nth matches 1)]
+            {:href href
+             :user user
+             :id id})
+          {:href href})))
+
+      (deftest tweet-destructuring
+        (testing "url -> tweet with data"
+          (let [href "https://twitter.com/mathpunk/status/1234123412341234"
+                tweet (href->tweet href)]
+            (is (= "mathpunk" (:user tweet)))
+            (is (= "1234123412341234" (:id tweet))))))
+
+  #+END_SRC
+
+Alright! Now let's see about using this data to get more data, out of Twitter.com's servers, by writing and starting a server of our own.
+
