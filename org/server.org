@@ -6,3 +6,135 @@
  Bearing in mind tendency for the silk of the web to rot, and the relatively slimness of the volume of data we've flagged as worth consideration, we should really host this volume in our own databases. Because of restrictions on what browsers can do, this will have to be server-side code.
 
 
+#+BEGIN_SRC clojure
+
+  (def get-by-id-url [id]
+    (str "https://api.twitter.com/1.1/statuses/show.json?id=" id))
+
+#+END_SRC
+
+But alas, we need to authenticate. Let's get the 
+
+#+BEGIN_SRC clojure
+
+  (let [get-env #(fn [name] (System/getenv name))
+        key (get-env "TWITTER_CONSUMER_KEY")
+        secret (get-env "TWITTER_CONSUMER_SECRET")
+        token (get-env "TWITTER_ACCESS_TOKEN")
+        secret-token (get-env "TWITTER_ACCESS_TOKEN_SECRET")]
+    (prinln "cool"))
+
+#+END_SRC
+
+
+
+(ns tipbot.core
+  (:use
+   [twitter.oauth]
+   [twitter.callbacks]
+   [twitter.callbacks.handlers]
+   [twitter.api.restful])
+  (:import
+   (twitter.callbacks.protocols SyncSingleCallback)))
+
+(def my-creds (make-oauth-creds "my-special-personal-app-consumer-key"
+                                "none-of-your-business-app-consumer-secret"
+                                "mine-and-only-mine-user-access-token"
+                                "no-you-cant-have-my-user-access-token-secret"))
+
+(defn -main
+  []
+  (println
+      (statuses-mentions-timeline :oauth-creds my-creds
+                                :params {:screen-name "abotcalledquest"})))
+
+(defn -main
+  []
+  (println
+      (statuses-mentions-timeline :oauth-creds my-creds
+                                  :params {:screen-name "abotcalledquest"}
+                                  :callbacks (SyncSingleCallback. response-return-body
+                                                                  response-throw-error
+                                                                  exception-rethrow)))
+
+(defn -main
+  []
+  (dorun
+      (println 
+          (map :text
+              (statuses-mentions-timeline :oauth-creds my-creds
+                                      :params {:screen-name "abotcalledquest"}
+                                      :callbacks (SyncSingleCallback. response-return-body
+                                                                      response-throw-error
+                                                                      exception-rethrow))))))
+
+       
+
+(defn -main
+  []
+  (dorun 
+      (println 
+      (map #(select-keys % [:text :user])
+              (statuses-mentions-timeline :oauth-creds my-creds
+                                           :params {:screen-name "abotcalledquest"}
+                                           :callbacks (SyncSingleCallback. 
+                                                               response-return-body
+                                                               response-throw-error
+                                                               exception-rethrow))))))
+
+Turns out the user has a lot of info. We want to get the user’s id only. There’s a couple of ways of getting at nested values in maps in Clojure (don’t sleep on that arrow, we’ll come back to it!) Let’s use get-in to pull the user id out here.
+
+(defn -main
+  []
+  (dorun
+      (println 
+      (map #(get-in % [:user :id_str])
+              (statuses-mentions-timeline :oauth-creds my-creds
+                                           :params {:screen-name "abotcalledquest"}
+                                           :callbacks (SyncSingleCallback. 
+                                                               response-return-body
+                                                               response-throw-error
+                                                               exception-rethrow))))))
+This works, but we need both the user id and the tweet’s text. Let’s go ahead and pull the response formatting step out into its own function.
+
+(defn extractTweetInfo
+  [tweetMap]
+  {:tweet (:text tweetMap), :user (get-in tweetMap [:user :id_str])})
+
+(defn -main
+  []
+  (dorun
+      (println 
+      (map extractTweetInfo
+              (statuses-mentions-timeline :oauth-creds my-creds
+                                           :params {:screen-name "abotcalledquest"}
+                                           :callbacks (SyncSingleCallback. 
+                                                               response-return-body
+                                                               response-throw-error
+                                                               exception-rethrow))))))
+
+(defn -main
+  []
+  (dorun
+      (println
+      (filter #(.contains (:tweet %) "can i kick it")
+              (map extractTweetInfo
+              (statuses-mentions-timeline :oauth-creds my-creds
+                                               :params {:screen-name "abotcalledquest"}
+                                               :callbacks (SyncSingleCallback. 
+                                                             response-return-body 
+                                                             response-throw-error 
+                                                             exception-rethrow))))
+
+(defn -main
+  []
+  (dorun
+    (->> (statuses-mentions-timeline :oauth-creds my-creds
+                                   :params {:screen-name "abotcalledquest"}
+                                   :callbacks (SyncSingleCallback. response-return-body  
+                                                                   response-throw-error  
+                                                                   exception-rethrow))
+         (map extractTweetInfo)
+         (filter #(-> % :tweet (.contains "can i kick it")))
+         (println))))
+
