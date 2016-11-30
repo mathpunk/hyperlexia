@@ -3,5 +3,5 @@
             [compojure.route :as route]))
 
 (defroutes handler
-  (GET "/hello" [] "<h1>Hello World</h1>")
+  (GET "/tweet/:id" [id] (str "tweet no. " id))
   (route/not-found "<h1>Page not found</h1>"))

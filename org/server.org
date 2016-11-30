@@ -15,7 +15,7 @@
 I'm a little intrigued by juxt's =yada=, because it looks hella data-driven. But, it seems like data-driven works best when you have written the thing a million times and you know exactly what needs to be specified. Since I ain't all that, let's make a route-handler with =compojure= and tell =figwheel= about it in its configuration options. 
 
 *** Configuration
-
+    
 Add dependencies to [[file:~/fire/hyperlexia/project.clj::;;%20%5Btwitter-api%20"0.7.8"%5D][project.clj]].
 
 #+BEGIN_SRC clojure
@@ -44,9 +44,9 @@ Hence, add
 
 to the =:figwheel= key in [[file:~/fire/hyperlexia/project.clj:::figwheel%20{%20:ring-handler%20'hyperlexia.server/handler%20}][project.clj.]] 
 
-** Smoke Test
+** DONE Smoke Test
 
-#+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
+#+BEGIN_SRC clojure :tangle no
 
   (ns hyperlexia.server
     (:require [compojure.core :refer :all]
@@ -58,9 +58,21 @@ to the =:figwheel= key in [[file:~/fire/hyperlexia/project.clj:::figwheel%20{%20
 
 #+END_SRC
 
-And figwheel doesn't start! 
+Yep.
 
-*** TODO Debug figwheel/server failure
+** Routes
+
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
+
+  (ns hyperlexia.server
+    (:require [compojure.core :refer :all]
+              [compojure.route :as route]))
+
+  (defroutes handler
+    (GET "/tweet/:id" [id] (str "tweet no. " id))
+    (route/not-found "<h1>Page not found</h1>"))
+
+#+END_SRC
 
 ** Twitter.com's API 
 
