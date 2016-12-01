@@ -61,6 +61,7 @@
   :figwheel { :css-dirs ["resources/public/css"]
               :ring-handler hyperlexia.server/handler }
 
+  :open-file-command "file-opener"
 
   :profiles {:dev {:dependencies [[binaryage/devtools "0.8.2"]
                                   [figwheel-sidecar "0.5.8"]

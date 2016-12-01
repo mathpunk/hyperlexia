@@ -60,66 +60,143 @@ to the =:figwheel= key in [[file:~/fire/hyperlexia/project.clj:::figwheel%20{%20
 
 Yep.
 
-** Routes
+** Routes & API calls
 
+Namespace with =compojure= and =twitter-api= necessities in it.
+   
 #+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
 
   (ns hyperlexia.server
     (:require [compojure.core :refer :all]
-              [compojure.route :as route]))
-
-  (defroutes handler
-    (GET "/tweet/:id" [id] (str "tweet no. " id))
-    (route/not-found "<h1>Page not found</h1>"))
+              [compojure.route :as route])
+    (:use
+     [twitter.oauth]
+     [twitter.callbacks]
+     [twitter.callbacks.handlers]
+     [twitter.api.restful])
+    (:import
+     (twitter.callbacks.protocols SyncSingleCallback)))
 
 #+END_SRC
 
-** Twitter.com's API 
+Q: Why does the author of =twitter-api= use =:use= instead of the more common =:require=? I'm following their example tho.
 
-The twitter-api library 
+Routes needed:
+- twitter/:id :: Get whatever data we want need for a particular tweet.
+- twitter/favorites/:n :: Get the last n favorites for the authenticated user.
+- twitter/user/:name :: Get whatever data we need for a particular user.
+
+And we'll need functions for hitting the Twitter.com api routes that we want, with authentication in place. 
+
+*** Authenticating
+
+    We ask Twitter.com (out-of-band) to provide credentials for our app, and authenticate it with our private account. We take the four strings thus created, and put them into the environment (so that they don't end up in our source code, a security hole). There's a library to do this called =environ=, but for now I'm using =System/get-env= and a start script that loads the variables into the environment before starting =figwheel=.
+
+ #+BEGIN_SRC clojure
+
+   (def my-creds (let [get-env #(fn [name] (System/getenv name))
+                       key (get-env "TWITTER_CONSUMER_KEY")
+                       secret (get-env "TWITTER_CONSUMER_SECRET")
+                       token (get-env "TWITTER_ACCESS_TOKEN")
+                       secret-token (get-env "TWITTER_ACCESS_TOKEN_SECRET")]
+                   (make-oauth-creds *app-consumer-key*
+                                     ,*app-consumer-secret*
+                                     ,*user-access-token*
+                                     ,*user-access-token-secret*)))
+
+ #+END_SRC
+
+*** API: map Twitter.com url to command name
 
 #+BEGIN_QUOTE
 
 All of the functions follow Twitter's naming conventions; we convert a resource's path into the function name. For example:
 
-https://api.twitter.com/1.1/account/settings is available as account-settings
-https://api.twitter.com/1.1/statuses/update_with_media is available as statuses-update-with-media
-
+- https://api.twitter.com/1.1/account/settings is available as =account-settings=
+- https://api.twitter.com/1.1/statuses/update_with_media is available as =statuses-update-with-media=
+- 
 Parameters are uniform across the functions. All calls can accept:
 
-:oauth-creds is the result of the make-oauth-creds function.
-:params is a map of parameters to pass, eg, list_id=123 would be {:list-id 123}
-:headers adds or overrides any of the request headers sent to Twitter.
-:verb overrides the HTTP verb used to make the request, for resources that support it (eg, account-settings)
-:callbacks attaches a custom callback to the request.
-All of the API calls will return the full HTTP response of the request, including headers.
+- :oauth-creds is the result of the make-oauth-creds function.
+- :params is a map of parameters to pass, eg, list_id=123 would be {:list-id 123}
+- :headers adds or overrides any of the request headers sent to Twitter.
+- :verb overrides the HTTP verb used to make the request, for resources that support it (eg, account-settings)
+- :callbacks attaches a custom callback to the request.
 
 #+END_QUOTE
 
+Soooo hm. If I look up the resource paths for the methods I want.... 
 
+**** Get status by id
+https://api.twitter.com/1.1/statuses/show.json
+with param =id=
 
-https://dev.twitter.com/rest/reference/get/statuses/show/id
+becomes
 
-Something like
+#+BEGIN_SRC clojure
+(statuses-show {:id ...}) 
 
-** Authenticating
+#+END_SRC
 
-   We ask Twitter.com to provide credentials for our app, and authenticate it with our private account. We take the four strings thus created, and put them into the environment (so that they don't end up in our source code, a security hole). There's a library to do this called =environ=, but for now I'm using =System/get-env= and a start script that loads the variables into the environment before starting =figwheel=.
+and there are a couple other params you might care about later.
 
-Here's some code that loads it to use later.
+**** Get a number of favorites
+https://api.twitter.com/1.1/favorites/list.json
+with param count
+
+becomes
 
 #+BEGIN_SRC clojure
 
-  (let [get-env #(fn [name] (System/getenv name))
-        key (get-env "TWITTER_CONSUMER_KEY")
-        secret (get-env "TWITTER_CONSUMER_SECRET")
-        token (get-env "TWITTER_ACCESS_TOKEN")
-        secret-token (get-env "TWITTER_ACCESS_TOKEN_SECRET")]
-    (prinln "cool"))
+(favorites-list {:count ...})
+
+#+END_SRC
+
+**** Get information about a user
+https://api.twitter.com/1.1/users/lookup.json
+with params screen-name or user-id
+
+becomes
+
+#+BEGIN_SRC clojure
+
+(users-lookup { :user-id ... :screen-name ...})
+
+#+END_SRC
+
+probably.
+
+*** API API: map routes to functions
+**** Wiring it together
+Name some fns:
+
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
+
+   (defn tweet-by-id [id]
+     (str "tweet no. " id))
+
+   (defn some-faves [n]
+     (str n " tweets"))
+
+   (defn user-by-name [name]
+     (str "user " name))
+
+#+END_SRC
+
+ Finally, write the handler. 
+
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
+
+     (defroutes handler
+       (GET "/twitter/:id" [id] (tweet-by-id id))
+       (GET "/twitter/favorites/:n" [n] (some-faves n))
+       (GET "/twitter/faves/:n" [n] (some-faves n))
+       (GET "/twitter/likes/:n" [n] (some-faves n))
+       (GET "/twitter/user/:name" [name] (user-by-name name))
+       (route/not-found "<h1>Page not found</h1>"))
 
 #+END_SRC
 
 
-** twitter-api 
 
-
+** Calling the server from the client
