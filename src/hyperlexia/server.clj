@@ -9,8 +9,16 @@
   (:import
    (twitter.callbacks.protocols SyncSingleCallback)))
 
+(def my-creds (let [get-env (fn [name] (System/getenv name))
+                    key (get-env "TWITTER_CONSUMER_KEY")
+                    secret (get-env "TWITTER_CONSUMER_SECRET")
+                    token (get-env "TWITTER_ACCESS_TOKEN")
+                    secret-token (get-env "TWITTER_ACCESS_TOKEN_SECRET")]
+                (make-oauth-creds key secret token secret-token)))
+
 (defn tweet-by-id [id]
-  (str "tweet no. " id))
+  (let [data (statuses-show {:id id :callback (println "hi")})]
+    data))
 
 (defn some-faves [n]
   (str n " tweets"))

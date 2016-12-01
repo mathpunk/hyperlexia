@@ -92,17 +92,14 @@ And we'll need functions for hitting the Twitter.com api routes that we want, wi
 
     We ask Twitter.com (out-of-band) to provide credentials for our app, and authenticate it with our private account. We take the four strings thus created, and put them into the environment (so that they don't end up in our source code, a security hole). There's a library to do this called =environ=, but for now I'm using =System/get-env= and a start script that loads the variables into the environment before starting =figwheel=.
 
- #+BEGIN_SRC clojure
+ #+BEGIN_SRC clojure  clojure :tangle ../src/hyperlexia/server.clj
 
-   (def my-creds (let [get-env #(fn [name] (System/getenv name))
+   (def my-creds (let [get-env (fn [name] (System/getenv name))
                        key (get-env "TWITTER_CONSUMER_KEY")
                        secret (get-env "TWITTER_CONSUMER_SECRET")
                        token (get-env "TWITTER_ACCESS_TOKEN")
                        secret-token (get-env "TWITTER_ACCESS_TOKEN_SECRET")]
-                   (make-oauth-creds *app-consumer-key*
-                                     ,*app-consumer-secret*
-                                     ,*user-access-token*
-                                     ,*user-access-token-secret*)))
+                   (make-oauth-creds key secret token secret-token)))
 
  #+END_SRC
 
@@ -134,11 +131,27 @@ with param =id=
 becomes
 
 #+BEGIN_SRC clojure
+
 (statuses-show {:id ...}) 
 
 #+END_SRC
 
 and there are a couple other params you might care about later.
+
+Let's try it. 
+
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
+
+  (defn tweet-by-id [id]
+    (let [data (statuses-show {:id id :callback (println "hi")})]
+      data))
+
+#+END_SRC
+
+
+Well shit.
+
+**** TODO Debug server explosion
 
 **** Get a number of favorites
 https://api.twitter.com/1.1/favorites/list.json
@@ -149,6 +162,15 @@ becomes
 #+BEGIN_SRC clojure
 
 (favorites-list {:count ...})
+
+#+END_SRC
+
+Let's try it:
+
+#+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
+
+   (defn some-faves [n]
+     (str n " tweets"))
 
 #+END_SRC
 
@@ -164,26 +186,22 @@ becomes
 
 #+END_SRC
 
+Example
+(users-show :oauth-creds my-creds :params {:screen-name "AdamJWynne"})
+
 probably.
 
-*** API API: map routes to functions
-**** Wiring it together
-Name some fns:
-
 #+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
-
-   (defn tweet-by-id [id]
-     (str "tweet no. " id))
-
-   (defn some-faves [n]
-     (str n " tweets"))
 
    (defn user-by-name [name]
      (str "user " name))
 
 #+END_SRC
 
- Finally, write the handler. 
+** The handler 
+
+Now use those functions in the handler. 
+
 
 #+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
 

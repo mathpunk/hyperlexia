@@ -16,6 +16,7 @@
                  [cljsjs/react "15.3.1-0"]
                  [cljsjs/react-dom "15.3.1-0"]
                  [compojure "1.5.1"]
+                 [twitter-api "0.7.8"]
                  ;; [cljsjs/material "1.2.1-0"]
                  ;; [rum-mdl "0.2.0"]
                  ]
