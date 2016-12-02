@@ -17,7 +17,7 @@
                 (make-oauth-creds key secret token secret-token)))
 
 (defn tweet-by-id [id]
-  (let [data (statuses-show {:id id :callback (println "hi")})]
+  (let [data (statuses-lookup {:id id })]
     data))
 
 (defn some-faves [n]

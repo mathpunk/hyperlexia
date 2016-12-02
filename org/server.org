@@ -132,7 +132,7 @@ becomes
 
 #+BEGIN_SRC clojure
 
-(statuses-show {:id ...}) 
+(statuses-lookup {:id ...}) 
 
 #+END_SRC
 
@@ -143,7 +143,7 @@ Let's try it.
 #+BEGIN_SRC clojure :tangle ../src/hyperlexia/server.clj
 
   (defn tweet-by-id [id]
-    (let [data (statuses-show {:id id :callback (println "hi")})]
+    (let [data (statuses-lookup {:id id })]
       data))
 
 #+END_SRC
@@ -152,6 +152,8 @@ Let's try it.
 Well shit.
 
 **** TODO Debug server explosion
+***** DONE Update twitter-api branch 
+***** DONE change function called
 
 **** Get a number of favorites
 https://api.twitter.com/1.1/favorites/list.json
